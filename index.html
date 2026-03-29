@@ -258,7 +258,7 @@
   <div class="app-shell">
     <header class="topbar">
       <div class="brand-wrap">
-        <div class="brand-logo">RS</div>
+        <div class="brand-logo">GR</div>
         <div>
           <div class="brand-title" id="companyNameTop">Controle GrafRei</div>
           <div class="brand-sub" id="syncStatus">Carregando sistema...</div>
@@ -924,3 +924,195 @@
       window.addEventListener('online', ()=> $('#syncStatus').textContent = 'Online • pronto para sincronizar');
       window.addEventListener('offline', ()=> $('#syncStatus').textContent = 'Offline • cache local ativo');
     }
+
+    init();
+  
+// =========================
+// FIREBASE INTEGRATION LAYER
+// =========================
+const firebaseConfig = {
+  apiKey: "COLE_SUA_API_KEY",
+  authDomain: "COLE_SEU_AUTH_DOMAIN",
+  projectId: "COLE_SEU_PROJECT_ID",
+  storageBucket: "COLE_SEU_STORAGE_BUCKET",
+  messagingSenderId: "COLE_SEU_MESSAGING_SENDER_ID",
+  appId: "COLE_SEU_APP_ID"
+};
+
+let firebaseReady = false;
+let db = null;
+let cloudSyncEnabled = false;
+let syncInProgress = false;
+let pendingSyncQueue = [];
+
+async function loadFirebaseSDK(){
+  if(window.__firebaseLoaded) return true;
+  try {
+    const appScript = document.createElement('script');
+    appScript.src = 'https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js';
+    document.head.appendChild(appScript);
+    await new Promise((res, rej)=>{ appScript.onload = res; appScript.onerror = rej; });
+
+    const dbScript = document.createElement('script');
+    dbScript.src = 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js';
+    document.head.appendChild(dbScript);
+    await new Promise((res, rej)=>{ dbScript.onload = res; dbScript.onerror = rej; });
+
+    window.__firebaseLoaded = true;
+    return true;
+  } catch (e) {
+    console.error('Erro ao carregar Firebase SDK', e);
+    return false;
+  }
+}
+
+async function initFirebase(){
+  const ok = await loadFirebaseSDK();
+  if(!ok) return false;
+
+  try {
+    if(!firebase.apps.length){
+      firebase.initializeApp(firebaseConfig);
+    }
+    db = firebase.firestore();
+    firebaseReady = true;
+    cloudSyncEnabled = isFirebaseConfigValid();
+    if(cloudSyncEnabled) {
+      toast('Firebase conectado');
+      await firstCloudLoad();
+      flushSyncQueue();
+    } else {
+      toast('Preencha suas credenciais Firebase em Configurações');
+    }
+    renderSettings();
+    return true;
+  } catch (e) {
+    console.error('Erro ao iniciar Firebase', e);
+    toast('Falha ao iniciar Firebase');
+    return false;
+  }
+}
+
+function isFirebaseConfigValid(){
+  return firebaseConfig.apiKey && !firebaseConfig.apiKey.includes('COLE_') && firebaseConfig.projectId && !firebaseConfig.projectId.includes('COLE_');
+}
+
+function companyCollection(){
+  const companyId = state.company?.document || state.company?.name || 'grafrei-default';
+  return String(companyId).replace(/[^a-zA-Z0-9_-]/g, '_').toLowerCase();
+}
+
+async function saveDocCloud(collection, id, payload){
+  if(!firebaseReady || !cloudSyncEnabled || !navigator.onLine) return queueSync('save', collection, id, payload);
+  try {
+    await db.collection('grafrei').doc(companyCollection()).collection(collection).doc(id).set(payload, { merge: true });
+  } catch (e) {
+    console.error('Erro save cloud', e);
+    queueSync('save', collection, id, payload);
+  }
+}
+
+async function deleteDocCloud(collection, id){
+  if(!firebaseReady || !cloudSyncEnabled || !navigator.onLine) return queueSync('delete', collection, id, null);
+  try {
+    await db.collection('grafrei').doc(companyCollection()).collection(collection).doc(id).delete();
+  } catch (e) {
+    console.error('Erro delete cloud', e);
+    queueSync('delete', collection, id, null);
+  }
+}
+
+function queueSync(type, collection, id, payload){
+  pendingSyncQueue.push({ type, collection, id, payload, ts: Date.now() });
+  localStorage.setItem('grafrei_sync_queue', JSON.stringify(pendingSyncQueue));
+}
+
+async function flushSyncQueue(){
+  if(syncInProgress || !firebaseReady || !cloudSyncEnabled || !navigator.onLine || !pendingSyncQueue.length) return;
+  syncInProgress = true;
+  const queue = [...pendingSyncQueue];
+  try {
+    for(const item of queue){
+      if(item.type === 'save'){
+        await db.collection('grafrei').doc(companyCollection()).collection(item.collection).doc(item.id).set(item.payload, { merge: true });
+      } else if(item.type === 'delete'){
+        await db.collection('grafrei').doc(companyCollection()).collection(item.collection).doc(item.id).delete();
+      }
+    }
+    pendingSyncQueue = [];
+    localStorage.setItem('grafrei_sync_queue', JSON.stringify(pendingSyncQueue));
+    toast('Sincronização concluída');
+  } catch (e) {
+    console.error('Erro ao sincronizar fila', e);
+  } finally {
+    syncInProgress = false;
+  }
+}
+
+async function firstCloudLoad(){
+  if(!firebaseReady || !cloudSyncEnabled || !navigator.onLine) return;
+  try {
+    const collections = ['clients','products','orders','cashflow','agenda'];
+    for(const col of collections){
+      const snap = await db.collection('grafrei').doc(companyCollection()).collection(col).get();
+      const arr = [];
+      snap.forEach(doc => arr.push(doc.data()));
+      if(arr.length) state[col] = arr;
+    }
+    persist();
+    rerenderAll();
+  } catch (e) {
+    console.error('Erro firstCloudLoad', e);
+  }
+}
+
+const originalPersist = persist;
+persist = function(){
+  originalPersist();
+  syncEverythingToCloud();
+}
+
+async function syncEverythingToCloud(){
+  if(!firebaseReady || !cloudSyncEnabled) return;
+  const map = {
+    clients: state.clients,
+    products: state.products,
+    orders: state.orders,
+    cashflow: state.cashflow,
+    agenda: state.agenda,
+  };
+  for(const [collection, items] of Object.entries(map)){
+    for(const item of items){
+      if(item?.id) saveDocCloud(collection, item.id, item);
+    }
+  }
+}
+
+function rerenderAll(){
+  renderDashboard();
+  renderOrders();
+  renderAgenda();
+  renderFinance();
+  renderClients();
+  renderProducts();
+  renderReports();
+  renderSettings();
+}
+
+function loadSyncQueue(){
+  try {
+    pendingSyncQueue = JSON.parse(localStorage.getItem('grafrei_sync_queue') || '[]');
+  } catch {
+    pendingSyncQueue = [];
+  }
+}
+
+window.addEventListener('online', flushSyncQueue);
+window.addEventListener('load', async ()=>{
+  loadSyncQueue();
+  await initFirebase();
+});
+
+</script>
+</body>
+</html>
