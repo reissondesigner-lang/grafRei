@@ -4,1233 +4,468 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Controle GrafRei</title>
-
   <meta name="theme-color" content="#002868" />
-  <meta name="description" content="PWA de gestão para gráfica rápida - Controle GrafRei" />
-
   <link rel="manifest" href="./manifest.json" />
 
   <style>
-    :root {
-      --brand-primary: #002868;
-      --brand-secondary: #0088db;
-      --brand-white: #ffffff;
-
-      --bg: #0b1220;
-      --bg-soft: #121a2b;
-      --bg-card: #162033;
-      --bg-card-2: #1b2940;
-      --text: #f5f7fb;
-      --text-soft: #aeb8c9;
-      --border: rgba(255,255,255,0.08);
-
-      --success: #1fbf75;
-      --warning: #ffb020;
-      --danger: #ef5350;
-      --info: #4dabf7;
-
-      --shadow: 0 10px 30px rgba(0,0,0,0.25);
-      --radius: 18px;
-      --radius-sm: 12px;
-
-      --nav-h: 72px;
-      --header-h: 72px;
-      --fab-size: 68px;
-    }
-
-    body.light {
-      --bg: #f4f7fb;
-      --bg-soft: #eaf0f7;
-      --bg-card: #ffffff;
-      --bg-card-2: #f5f9ff;
-      --text: #132238;
-      --text-soft: #5f6f86;
-      --border: rgba(19,34,56,0.08);
-      --shadow: 0 10px 25px rgba(18, 38, 63, 0.08);
-    }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    }
-
-    html, body {
-      width: 100%;
-      height: 100%;
-      background: var(--bg);
-      color: var(--text);
-      overflow: hidden;
-    }
-
-    body {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .app {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-
-    .topbar {
-      height: var(--header-h);
-      background: linear-gradient(135deg, var(--brand-primary), #003b97);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 16px;
-      box-shadow: var(--shadow);
-      position: sticky;
-      top: 0;
-      z-index: 30;
-    }
-
-    .brand {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .brand h1 {
-      font-size: 20px;
-      font-weight: 800;
-      letter-spacing: .3px;
-      color: white;
-    }
-
-    .brand span {
-      font-size: 12px;
-      color: rgba(255,255,255,0.8);
-    }
-
-    .top-actions {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .icon-btn {
-      width: 42px;
-      height: 42px;
-      border-radius: 14px;
-      border: 1px solid rgba(255,255,255,0.14);
-      background: rgba(255,255,255,0.08);
-      color: white;
-      display: grid;
-      place-items: center;
-      cursor: pointer;
-      font-size: 18px;
-    }
-
-    .content {
-      flex: 1;
-      overflow: auto;
-      padding: 14px 14px 110px;
-      background:
-        radial-gradient(circle at top right, rgba(0,136,219,0.12), transparent 25%),
-        radial-gradient(circle at top left, rgba(0,40,104,0.18), transparent 35%),
-        var(--bg);
-    }
-
-    .page {
-      display: none;
-      animation: fade .18s ease;
-    }
-
-    .page.active {
-      display: block;
-    }
-
-    @keyframes fade {
-      from { opacity: 0; transform: translateY(6px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .section-title {
-      font-size: 20px;
-      font-weight: 800;
-      margin-bottom: 14px;
-    }
-
-    .subtext {
-      font-size: 13px;
-      color: var(--text-soft);
-    }
-
-    .grid {
-      display: grid;
-      gap: 12px;
-    }
-
-    .grid.cards-2 {
-      grid-template-columns: repeat(2, 1fr);
-    }
-
-    .grid.cards-3 {
-      grid-template-columns: repeat(3, 1fr);
-    }
-
-    .card {
-      background: linear-gradient(180deg, var(--bg-card), var(--bg-card-2));
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 14px;
-    }
-
-    .stat-card {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      min-height: 110px;
-    }
-
-    .stat-card .label {
-      font-size: 12px;
-      color: var(--text-soft);
-      text-transform: uppercase;
-      letter-spacing: .6px;
-    }
-
-    .stat-card .value {
-      font-size: 24px;
-      font-weight: 800;
-    }
-
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 7px 12px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 700;
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,0.04);
-    }
-
-    .pill.success { color: var(--success); }
-    .pill.warning { color: var(--warning); }
-    .pill.danger { color: var(--danger); }
-    .pill.info { color: var(--info); }
-
-    .row {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
-    .row.between {
-      justify-content: space-between;
-    }
-
-    .filters {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-bottom: 14px;
-    }
-
-    .input, .select, .textarea {
-      width: 100%;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid var(--border);
-      color: var(--text);
-      padding: 12px 14px;
-      border-radius: 14px;
-      outline: none;
-      font-size: 14px;
-    }
-
-    .textarea {
-      min-height: 90px;
-      resize: vertical;
-    }
-
-    .label {
-      font-size: 13px;
-      font-weight: 700;
-      margin-bottom: 7px;
-      display: block;
-    }
-
-    .field {
-      margin-bottom: 12px;
-    }
-
-    .btn {
-      border: none;
-      outline: none;
-      border-radius: 14px;
-      padding: 12px 16px;
-      font-size: 14px;
-      font-weight: 800;
-      cursor: pointer;
-      transition: .18s ease;
-    }
-
-    .btn:active {
-      transform: scale(.98);
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, var(--brand-secondary), var(--brand-primary));
-      color: white;
-      box-shadow: var(--shadow);
-    }
-
-    .btn-soft {
-      background: rgba(255,255,255,0.06);
-      color: var(--text);
-      border: 1px solid var(--border);
-    }
-
-    .btn-danger {
-      background: rgba(239,83,80,.14);
-      color: #ff9b9a;
-      border: 1px solid rgba(239,83,80,.2);
-    }
-
-    .list {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-top: 12px;
-    }
-
-    .item {
-      background: linear-gradient(180deg, var(--bg-card), var(--bg-card-2));
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 14px;
-      box-shadow: var(--shadow);
-    }
-
-    .item-title {
-      font-size: 16px;
-      font-weight: 800;
-      margin-bottom: 6px;
-    }
-
-    .item-meta {
-      font-size: 13px;
-      color: var(--text-soft);
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-
-    .item-actions {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-top: 10px;
-    }
-
-    .search-wrap {
-      position: relative;
-      margin-bottom: 14px;
-    }
-
-    .search-wrap .input {
-      padding-left: 42px;
-    }
-
-    .search-icon {
-      position: absolute;
-      left: 14px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--text-soft);
-      font-size: 16px;
-    }
-
-    .bottom-nav {
-      position: fixed;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      height: var(--nav-h);
-      background: rgba(8, 14, 25, 0.9);
-      backdrop-filter: blur(14px);
-      border-top: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: space-around;
-      z-index: 40;
-      padding: 0 8px;
-    }
-
-    body.light .bottom-nav {
-      background: rgba(255,255,255,0.92);
-    }
-
-    .nav-btn {
-      flex: 1;
-      border: none;
-      background: transparent;
-      color: var(--text-soft);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
-      font-size: 11px;
-      cursor: pointer;
-      height: 100%;
-    }
-
-    .nav-btn.active {
-      color: var(--brand-secondary);
-      font-weight: 800;
-    }
-
-    .fab {
-      position: fixed;
-      left: 50%;
-      bottom: 34px;
-      transform: translateX(-50%);
-      width: var(--fab-size);
-      height: var(--fab-size);
-      border-radius: 50%;
-      border: none;
-      background: linear-gradient(135deg, var(--brand-secondary), var(--brand-primary));
-      color: white;
-      font-size: 28px;
-      box-shadow: 0 14px 30px rgba(0,136,219,.35);
-      z-index: 50;
-      cursor: pointer;
-      font-weight: 900;
-    }
-
-    .modal-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.55);
-      display: none;
-      align-items: flex-end;
-      justify-content: center;
-      z-index: 100;
-    }
-
-    .modal-backdrop.show {
-      display: flex;
-    }
-
-    .modal {
-      width: 100%;
-      max-width: 760px;
-      max-height: 92vh;
-      overflow: auto;
-      background: var(--bg-soft);
-      border-top-left-radius: 28px;
-      border-top-right-radius: 28px;
-      border: 1px solid var(--border);
-      padding: 16px 16px 30px;
-      box-shadow: var(--shadow);
-      animation: up .2s ease;
-    }
-
-    @keyframes up {
-      from { transform: translateY(20px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 14px;
-      position: sticky;
-      top: 0;
-      background: var(--bg-soft);
-      padding-bottom: 10px;
-      z-index: 2;
-    }
-
-    .modal-title {
-      font-size: 18px;
-      font-weight: 800;
-    }
-
-    .close-btn {
-      width: 40px;
-      height: 40px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,0.04);
-      color: var(--text);
-      font-size: 18px;
-      cursor: pointer;
-    }
-
-    .two-cols {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-
-    .three-cols {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 10px;
-    }
-
-    .calendar {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 8px;
-      margin-top: 12px;
-    }
-
-    .day-head {
-      text-align: center;
-      font-size: 12px;
-      color: var(--text-soft);
-      font-weight: 700;
-      padding: 6px 0;
-    }
-
-    .day {
-      min-height: 88px;
-      background: linear-gradient(180deg, var(--bg-card), var(--bg-card-2));
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 8px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      cursor: pointer;
-    }
-
-    .day.empty {
-      opacity: 0.3;
-      pointer-events: none;
-    }
-
-    .day-num {
-      font-size: 13px;
-      font-weight: 800;
-    }
-
-    .event-dot {
-      width: 100%;
-      border-radius: 999px;
-      font-size: 10px;
-      padding: 4px 6px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      background: rgba(0,136,219,.18);
-      color: #8fd2ff;
-      border: 1px solid rgba(0,136,219,.2);
-    }
-
-    .empty-state {
-      text-align: center;
-      color: var(--text-soft);
-      padding: 26px 14px;
-      font-size: 14px;
-    }
-
-    .divider {
-      height: 1px;
-      background: var(--border);
-      margin: 12px 0;
-    }
-
-    .kpi-positive { color: var(--success); }
-    .kpi-negative { color: var(--danger); }
-
-    @media (max-width: 720px) {
-      .grid.cards-3,
-      .grid.cards-2,
-      .two-cols,
-      .three-cols {
-        grid-template-columns: 1fr;
-      }
+    :root{
+      --azul:#002868;
+      --azul2:#0088db;
+      --branco:#fff;
+      --bg:#f4f7fb;
+      --card:#ffffff;
+      --txt:#1b1f27;
+      --muted:#6b7280;
+      --ok:#14b86a;
+      --warn:#eab308;
+      --danger:#ef4444;
+      --line:#dfe6ef;
+      --shadow:0 10px 30px rgba(0,40,104,.08);
+      --radius:18px;
+      --radius2:14px;
+      --navh:78px;
+      --max:1180px;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:Inter,Arial,sans-serif;background:var(--bg);color:var(--txt)}
+    button,input,select,textarea{font:inherit}
+    a{text-decoration:none;color:inherit}
+    .app{max-width:var(--max);margin:auto;min-height:100vh;padding-bottom:120px}
+    .topbar{position:sticky;top:0;z-index:20;background:linear-gradient(135deg,var(--azul),var(--azul2));color:#fff;padding:18px 16px 22px;box-shadow:var(--shadow)}
+    .topbar h1{font-size:1.2rem;font-weight:800}
+    .topbar p{font-size:.92rem;opacity:.92;margin-top:4px}
+    .container{padding:16px}
+    .tabs{display:none}
+    .screen{display:none;animation:fade .18s ease}
+    .screen.active{display:block}
+    @keyframes fade{from{opacity:.3;transform:translateY(8px)}to{opacity:1;transform:none}}
+    .grid{display:grid;gap:14px}
+    .grid.cards{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
+    .card h3,.section-title{font-size:1rem;font-weight:800;margin-bottom:12px}
+    .muted{color:var(--muted)}
+    .kpi{font-size:1.6rem;font-weight:900}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .between{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
+    .pill{padding:8px 12px;border-radius:999px;background:#eef5ff;border:1px solid #cfe3ff;color:var(--azul);font-weight:700;font-size:.88rem}
+    .status{padding:6px 10px;border-radius:999px;font-size:.78rem;font-weight:800;display:inline-block}
+    .status.orçamento,.status.orcamento{background:#eef2ff;color:#4338ca}
+    .status.aguardando{background:#fff7ed;color:#c2410c}
+    .status.aprovado{background:#ecfeff;color:#0f766e}
+    .status.produção,.status.producao{background:#f5f3ff;color:#6d28d9}
+    .status.pronto{background:#ecfdf5;color:#15803d}
+    .status.entregue{background:#eff6ff;color:#1d4ed8}
+    .status.cancelado{background:#fef2f2;color:#b91c1c}
+    .btn{border:none;border-radius:14px;padding:12px 16px;font-weight:800;cursor:pointer;transition:.18s}
+    .btn:active{transform:scale(.98)}
+    .btn-primary{background:linear-gradient(135deg,var(--azul),var(--azul2));color:#fff}
+    .btn-secondary{background:#eef5ff;color:var(--azul);border:1px solid #cfe3ff}
+    .btn-danger{background:#fee2e2;color:#b91c1c}
+    .btn-ok{background:#dcfce7;color:#166534}
+    .btn-small{padding:9px 12px;font-size:.9rem;border-radius:12px}
+    .input,.select,.textarea{width:100%;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:#fff;outline:none}
+    .textarea{min-height:96px;resize:vertical}
+    .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+    .list{display:grid;gap:12px}
+    .item{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:var(--shadow)}
+    .item h4{font-size:1rem;font-weight:800}
+    .item p{font-size:.92rem;color:var(--muted);margin-top:4px}
+    .searchbar{position:sticky;top:88px;z-index:10;background:var(--bg);padding-bottom:10px}
+    .table{width:100%;border-collapse:collapse}
+    .table th,.table td{padding:10px;border-bottom:1px solid var(--line);text-align:left;font-size:.92rem}
+    .table th{color:var(--muted);font-weight:800}
+    .empty{padding:20px;text-align:center;color:var(--muted)}
+    .nav{
+      position:fixed;left:50%;bottom:0;transform:translateX(-50%);
+      width:min(100%,var(--max));height:var(--navh);background:#fff;border-top:1px solid var(--line);
+      display:grid;grid-template-columns:repeat(6,1fr);align-items:center;z-index:50;box-shadow:0 -10px 30px rgba(0,0,0,.05)
+    }
+    .nav button{
+      background:none;border:none;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;
+      gap:6px;color:var(--muted);font-weight:800;font-size:.72rem;cursor:pointer;padding:6px
+    }
+    .nav button.active{color:var(--azul)}
+    .fab-wrap{display:flex;justify-content:center;
+      width:62px;height:62px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--azul),var(--azul2));font-weight:900;
+     font-size:2rem;box-shadow:0 18px 35px rgba(0,40,104,.25);margin-top:-28px;cursor:pointer
+    }
+    .fab{
+  color:#fff !important;
+}
+    .modal,.drawer{
+      position:fixed;inset:0;background:rgba(10,15,25,.45);display:none;align-items:flex-end;justify-content:center;z-index:100
+    }
+    .modal.active,.drawer.active{display:flex}
+    .sheet{
+      width:min(100%,900px);max-height:92vh;overflow:auto;background:#fff;border-radius:24px 24px 0 0;padding:18px
+    }
+    .modal-center{align-items:center}
+    .modal-center .sheet{border-radius:24px;max-height:90vh}
+    .divider{height:1px;background:var(--line);margin:16px 0}
+    .mini{font-size:.82rem}
+    .right{text-align:right}
+    .money{font-weight:900}
+    .tag{display:inline-flex;gap:6px;align-items:center;padding:7px 10px;border-radius:999px;background:#f3f6fb;font-size:.8rem;font-weight:700}
+    .hidden{display:none!important}
+    @media (max-width:640px){
+      .topbar h1{font-size:1.05rem}
+      .container{padding:14px}
+      .sheet{padding:16px}
+      .searchbar{top:82px}
+      .nav button{font-size:.66rem}
     }
   </style>
 </head>
-<body class="dark">
-  <div class="app">
-    <header class="topbar">
-      <div class="brand">
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="between">
+      <div>
         <h1>Controle GrafRei</h1>
-        <span id="companyLabel">Sua gráfica organizada</span>
+        <p>Gestão completa Reisson Santos - Designer Gráfico</p>
       </div>
+      <button class="btn btn-secondary btn-small" onclick="openEmpresa()">Configurações</button>
+    </div>
+  </header>
 
-      <div class="top-actions">
-        <button class="icon-btn" onclick="toggleTheme()">◐</button>
-        <button class="icon-btn" onclick="openModal('settingsModal')">⚙</button>
-      </div>
-    </header>
-
-    <main class="content">
-
-      <!-- DASHBOARD -->
-      <section class="page active" id="page-dashboard">
-        <div class="row between" style="margin-bottom: 14px;">
-          <div>
-            <div class="section-title">Dashboard</div>
-            <div class="subtext">Resumo geral por mês e ano</div>
-          </div>
-        </div>
-
-        <div class="filters">
-          <select class="select" id="filterMonth" style="max-width: 180px;" onchange="renderAll()"></select>
-          <select class="select" id="filterYear" style="max-width: 140px;" onchange="renderAll()"></select>
-        </div>
-
-        <div class="grid cards-2">
-          <div class="card stat-card">
-            <div class="label">Clientes</div>
-            <div class="value" id="dashClients">0</div>
-            <span class="pill info">ativos no período</span>
-          </div>
-
-          <div class="card stat-card">
-            <div class="label">Vendas</div>
-            <div class="value" id="dashOrders">0</div>
-            <span class="pill success">pedidos registrados</span>
-          </div>
-
-          <div class="card stat-card">
-            <div class="label">A receber</div>
-            <div class="value" id="dashReceivable">R$ 0,00</div>
-            <span class="pill warning">pendente</span>
-          </div>
-
-          <div class="card stat-card">
-            <div class="label">Recebido</div>
-            <div class="value" id="dashReceived">R$ 0,00</div>
-            <span class="pill success">confirmado</span>
-          </div>
-
-          <div class="card stat-card">
-            <div class="label">Atrasado</div>
-            <div class="value" id="dashOverdue">R$ 0,00</div>
-            <span class="pill danger">em aberto</span>
-          </div>
-
-          <div class="card stat-card">
-            <div class="label">Lucro</div>
-            <div class="value" id="dashProfit">R$ 0,00</div>
-            <span class="pill info">estimado</span>
-          </div>
-        </div>
-
-        <div class="card" style="margin-top: 14px;">
-          <div class="row between">
-            <div>
-              <div class="item-title">Próximos serviços</div>
-              <div class="subtext">Agenda resumida</div>
-            </div>
-            <button class="btn btn-soft" onclick="goToPage('agenda')">Ver agenda</button>
-          </div>
-          <div class="list" id="upcomingAgenda"></div>
-        </div>
-
-        <div class="card" style="margin-top: 14px;">
-          <div class="row between">
-            <div>
-              <div class="item-title">Últimos pedidos</div>
-              <div class="subtext">Atividade recente</div>
-            </div>
-            <button class="btn btn-soft" onclick="goToPage('pedidos')">Ver pedidos</button>
-          </div>
-          <div class="list" id="recentOrders"></div>
-        </div>
-      </section>
-
-      <!-- PEDIDOS -->
-      <section class="page" id="page-pedidos">
-        <div class="section-title">Lista de pedidos</div>
-
-        <div class="search-wrap">
-          <span class="search-icon">🔎</span>
-          <input class="input" id="orderSearch" placeholder="Buscar por pedido ou cliente..." oninput="renderOrders()" />
-        </div>
-
-        <div class="filters">
-          <button class="btn btn-soft" onclick="setOrderFilter('10')">Últimos 10</button>
-          <button class="btn btn-soft" onclick="setOrderFilter('30')">30 dias</button>
-          <button class="btn btn-soft" onclick="setOrderFilter('60')">60 dias</button>
-          <button class="btn btn-soft" onclick="setOrderFilter('all')">Todos</button>
-        </div>
-
-        <div class="list" id="ordersList"></div>
-      </section>
-
-      <!-- AGENDA -->
-      <section class="page" id="page-agenda">
-        <div class="row between">
-          <div>
-            <div class="section-title">Agenda</div>
-            <div class="subtext">Serviços agendados e concluídos</div>
-          </div>
+  <main class="container">
+    <!-- DASHBOARD -->
+    <section id="screen-dashboard" class="screen active">
+      <div class="card">
+        <div class="between">
+          <h3>Dashboard</h3>
           <div class="row">
-            <button class="btn btn-soft" onclick="changeCalendarMonth(-1)">◀</button>
-            <button class="btn btn-soft" onclick="changeCalendarMonth(1)">▶</button>
+            <select id="dashMes" class="select" style="width:auto"></select>
+            <select id="dashAno" class="select" style="width:auto"></select>
           </div>
         </div>
-
-        <div class="card" style="margin-top: 12px;">
-          <div class="row between">
-            <div class="item-title" id="calendarTitle">Mês</div>
-            <button class="btn btn-primary" onclick="openModal('orderModal')">Novo agendamento</button>
-          </div>
-
-          <div class="calendar" id="calendarGrid"></div>
-        </div>
-      </section>
-
-      <!-- FINANCEIRO -->
-      <section class="page" id="page-financeiro">
-        <div class="section-title">Financeiro</div>
-
-        <div class="filters">
-          <select class="select" id="financeMonth" style="max-width: 180px;" onchange="renderFinance()"></select>
-          <select class="select" id="financeYear" style="max-width: 140px;" onchange="renderFinance()"></select>
-        </div>
-
-        <div class="grid cards-2">
-          <div class="card stat-card">
-            <div class="label">Pagamentos atrasados</div>
-            <div class="value" id="finOverdue">R$ 0,00</div>
-          </div>
-          <div class="card stat-card">
-            <div class="label">A receber</div>
-            <div class="value" id="finReceivable">R$ 0,00</div>
-          </div>
-          <div class="card stat-card">
-            <div class="label">Recebido</div>
-            <div class="value" id="finReceived">R$ 0,00</div>
-          </div>
-          <div class="card stat-card">
-            <div class="label">Lucro</div>
-            <div class="value" id="finProfit">R$ 0,00</div>
-          </div>
-        </div>
-
-        <div class="card" style="margin-top: 14px;">
-          <div class="row between">
-            <div>
-              <div class="item-title">Fluxo de caixa</div>
-              <div class="subtext">Receitas e despesas do período</div>
-            </div>
-            <button class="btn btn-primary" onclick="openCashflowModal()">Novo lançamento</button>
-          </div>
-
-          <div class="divider"></div>
-
-          <div class="row" style="margin-bottom: 10px;">
-            <span class="pill success">Receitas: <strong id="cashInText">R$ 0,00</strong></span>
-            <span class="pill danger">Despesas: <strong id="cashOutText">R$ 0,00</strong></span>
-          </div>
-
-          <div class="list" id="cashflowList"></div>
-        </div>
-      </section>
-
-      <!-- CLIENTES -->
-      <section class="page" id="page-clientes">
-        <div class="row between">
-          <div>
-            <div class="section-title">Clientes</div>
-            <div class="subtext">Cadastro e edição</div>
-          </div>
-          <button class="btn btn-primary" onclick="openClientModal()">Novo cliente</button>
-        </div>
-
-        <div class="search-wrap" style="margin-top: 12px;">
-          <span class="search-icon">🔎</span>
-          <input class="input" id="clientSearch" placeholder="Buscar cliente..." oninput="renderClients()" />
-        </div>
-
-        <div class="list" id="clientsList"></div>
-      </section>
-
-      <!-- PRODUTOS -->
-      <section class="page" id="page-produtos">
-        <div class="row between">
-          <div>
-            <div class="section-title">Produtos / Serviços</div>
-            <div class="subtext">Catálogo para pedidos e PDV</div>
-          </div>
-          <button class="btn btn-primary" onclick="openProductModal()">Novo item</button>
-        </div>
-
-        <div class="search-wrap" style="margin-top: 12px;">
-          <span class="search-icon">🔎</span>
-          <input class="input" id="productSearch" placeholder="Buscar produto ou serviço..." oninput="renderProducts()" />
-        </div>
-
-        <div class="list" id="productsList"></div>
-      </section>
-
-      <!-- RELATÓRIOS -->
-      <section class="page" id="page-relatorios">
-        <div class="section-title">Relatórios</div>
-
-        <div class="grid cards-2">
-          <div class="card">
-            <div class="item-title">Pedidos</div>
-            <div class="subtext">Quantidade, ticket médio e status</div>
-          </div>
-          <div class="card">
-            <div class="item-title">Vendas</div>
-            <div class="subtext">Total vendido por período</div>
-          </div>
-          <div class="card">
-            <div class="item-title">Pagamentos</div>
-            <div class="subtext">Atrasados, pendentes e recebidos</div>
-          </div>
-          <div class="card">
-            <div class="item-title">Finanças</div>
-            <div class="subtext">Receitas, despesas e lucro</div>
-          </div>
-        </div>
-
-        <div class="card" style="margin-top: 14px;">
-          <div class="row between">
-            <div>
-              <div class="item-title">Resumo do período</div>
-              <div class="subtext">Baseado nos filtros principais</div>
-            </div>
-          </div>
-          <div class="divider"></div>
-          <div class="list" id="reportSummary"></div>
-        </div>
-      </section>
-
-    </main>
-
-    <button class="fab" onclick="openModal('newModal')">＋</button>
-
-    <nav class="bottom-nav">
-      <button class="nav-btn active" data-page="dashboard" onclick="goToPage('dashboard', this)">
-        <span>🏠</span><span>Início</span>
-      </button>
-      <button class="nav-btn" data-page="pedidos" onclick="goToPage('pedidos', this)">
-        <span>📦</span><span>Pedidos</span>
-      </button>
-      <button class="nav-btn" data-page="agenda" onclick="goToPage('agenda', this)">
-        <span>🗓</span><span>Agenda</span>
-      </button>
-      <button class="nav-btn" data-page="financeiro" onclick="goToPage('financeiro', this)">
-        <span>💰</span><span>Financeiro</span>
-      </button>
-      <button class="nav-btn" data-page="clientes" onclick="goToPage('clientes', this)">
-        <span>👥</span><span>Clientes</span>
-      </button>
-      <button class="nav-btn" data-page="produtos" onclick="goToPage('produtos', this)">
-        <span>🧾</span><span>Produtos</span>
-      </button>
-      <button class="nav-btn" data-page="relatorios" onclick="goToPage('relatorios', this)">
-        <span>📊</span><span>Relatórios</span>
-      </button>
-    </nav>
-  </div>
-
-  <!-- MODAL NOVO -->
-  <div class="modal-backdrop" id="newModal">
-    <div class="modal">
-      <div class="modal-header">
-        <div class="modal-title">Adicionar novo</div>
-        <button class="close-btn" onclick="closeModal('newModal')">✕</button>
       </div>
-
-      <div class="grid cards-2">
-        <button class="btn btn-primary" onclick="closeModal('newModal'); openModal('orderModal')">Novo pedido</button>
-        <button class="btn btn-soft" onclick="closeModal('newModal'); openClientModal()">Novo cliente</button>
-        <button class="btn btn-soft" onclick="closeModal('newModal'); openProductModal()">Novo produto/serviço</button>
-        <button class="btn btn-soft" onclick="closeModal('newModal'); openPDVModal()">Novo PDV</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL CLIENTE -->
-  <div class="modal-backdrop" id="clientModal">
-    <div class="modal">
-      <div class="modal-header">
-        <div class="modal-title" id="clientModalTitle">Novo cliente</div>
-        <button class="close-btn" onclick="closeModal('clientModal')">✕</button>
-      </div>
-
-      <input type="hidden" id="clientId" />
-
-      <div class="field">
-        <label class="label">Nome</label>
-        <input class="input" id="clientName" placeholder="Nome do cliente" />
-      </div>
-
-      <div class="two-cols">
-        <div class="field">
-          <label class="label">Celular</label>
-          <input class="input" id="clientPhone" placeholder="(00) 00000-0000" />
+      <div class="grid cards" id="dashboardCards"></div>
+      <div class="grid" style="margin-top:14px">
+        <div class="card">
+          <div class="between"><h3>Próximas entregas</h3></div>
+          <div id="dashEntregas" class="list"></div>
         </div>
-        <div class="field">
-          <label class="label">E-mail</label>
-          <input class="input" id="clientEmail" placeholder="email@exemplo.com" />
+        <div class="card">
+          <div class="between"><h3>Pagamentos pendentes</h3></div>
+          <div id="dashPendentes" class="list"></div>
         </div>
       </div>
+    </section>
 
-      <div class="field">
-        <label class="label">Endereço</label>
-        <input class="input" id="clientAddress" placeholder="Rua, número, bairro, cidade..." />
-      </div>
-
-      <div class="field">
-        <label class="label">CPF</label>
-        <input class="input" id="clientCpf" placeholder="000.000.000-00" />
-      </div>
-
-      <div class="field">
-        <label class="label">Observações</label>
-        <textarea class="textarea" id="clientObs" placeholder="Informações adicionais..."></textarea>
-      </div>
-
-      <div class="row">
-        <button class="btn btn-primary" onclick="saveClient()">Salvar cliente</button>
-        <button class="btn btn-danger" id="deleteClientBtn" style="display:none;" onclick="deleteClient()">Excluir</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL PRODUTO -->
-  <div class="modal-backdrop" id="productModal">
-    <div class="modal">
-      <div class="modal-header">
-        <div class="modal-title" id="productModalTitle">Novo produto / serviço</div>
-        <button class="close-btn" onclick="closeModal('productModal')">✕</button>
-      </div>
-
-      <input type="hidden" id="productId" />
-
-      <div class="field">
-        <label class="label">Nome</label>
-        <input class="input" id="productName" placeholder="Nome do item" />
-      </div>
-
-      <div class="three-cols">
-        <div class="field">
-          <label class="label">Venda (R$)</label>
-          <input class="input" id="productSale" type="number" step="0.01" placeholder="0.00" />
-        </div>
-        <div class="field">
-          <label class="label">Custo (R$)</label>
-          <input class="input" id="productCost" type="number" step="0.01" placeholder="0.00" />
-        </div>
-        <div class="field">
-          <label class="label">Unidade</label>
-          <input class="input" id="productUnit" placeholder="un, m², folha..." />
-        </div>
-      </div>
-
-      <div class="field">
-        <label class="label">Observações</label>
-        <textarea class="textarea" id="productObs" placeholder="Detalhes do produto/serviço..."></textarea>
-      </div>
-
-      <div class="row">
-        <button class="btn btn-primary" onclick="saveProduct()">Salvar item</button>
-        <button class="btn btn-danger" id="deleteProductBtn" style="display:none;" onclick="deleteProduct()">Excluir</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL PEDIDO -->
-  <div class="modal-backdrop" id="orderModal">
-    <div class="modal">
-      <div class="modal-header">
-        <div class="modal-title" id="orderModalTitle">Novo pedido</div>
-        <button class="close-btn" onclick="closeModal('orderModal')">✕</button>
-      </div>
-
-      <input type="hidden" id="orderId" />
-
-      <div class="two-cols">
-        <div class="field">
-          <label class="label">Data</label>
-          <input class="input" id="orderDate" type="date" />
-        </div>
-        <div class="field">
-          <label class="label">Status</label>
-          <select class="select" id="orderStatus">
-            <option>orçamento</option>
-            <option>aguardando aprovação</option>
-            <option>aprovado</option>
-            <option>em produção</option>
-            <option>pronto</option>
-            <option>entregue</option>
-            <option>cancelado</option>
+    <!-- PEDIDOS -->
+    <section id="screen-pedidos" class="screen">
+      <div class="searchbar">
+        <div class="row">
+          <input id="pedidoSearch" class="input" placeholder="Buscar por pedido ou cliente..." oninput="renderPedidos()" />
+          <select id="pedidoFiltro" class="select" style="width:auto" onchange="renderPedidos()">
+            <option value="10">Últimos 10</option>
+            <option value="30">30 dias</option>
+            <option value="60">60 dias</option>
+            <option value="all">Todos</option>
           </select>
         </div>
       </div>
+      <div id="pedidosList" class="list"></div>
+    </section>
 
-      <div class="two-cols">
-        <div class="field">
-          <label class="label">Cliente</label>
-          <select class="select" id="orderClient"></select>
-        </div>
-        <div class="field">
-          <label class="label">Pagamento</label>
-          <select class="select" id="orderPaymentMethod">
-            <option>Pix</option>
-            <option>Dinheiro</option>
-            <option>Cartão</option>
-            <option>Transferência</option>
-            <option>Boleto</option>
-            <option>Outro</option>
-          </select>
+    <!-- FINANCEIRO -->
+    <section id="screen-financeiro" class="screen">
+      <div class="card">
+        <div class="between">
+          <h3>Financeiro</h3>
+          <div class="row">
+            <input id="finInicio" type="date" class="input" style="width:auto" onchange="renderFinanceiro()" />
+            <input id="finFim" type="date" class="input" style="width:auto" onchange="renderFinanceiro()" />
+          </div>
         </div>
       </div>
-
-      <div class="field">
-        <label class="label">Produto / Serviço</label>
-        <select class="select" id="orderProduct"></select>
-      </div>
-
-      <div class="three-cols">
-        <div class="field">
-          <label class="label">Quantidade</label>
-          <input class="input" id="orderQty" type="number" step="0.01" value="1" oninput="calculateOrderTotal()" />
+      <div class="grid cards" id="financeiroCards" style="margin-top:14px"></div>
+      <div class="grid" style="margin-top:14px">
+        <div class="card">
+          <h3>Pagamentos</h3>
+          <div id="pagamentosList" class="list"></div>
         </div>
-        <div class="field">
-          <label class="label">Valor unitário (R$)</label>
-          <input class="input" id="orderUnitPrice" type="number" step="0.01" value="0" oninput="calculateOrderTotal()" />
-        </div>
-        <div class="field">
-          <label class="label">Custo unitário (R$)</label>
-          <input class="input" id="orderUnitCost" type="number" step="0.01" value="0" oninput="calculateOrderTotal()" />
+        <div class="card">
+          <div class="between"><h3>Receitas e despesas</h3><button class="btn btn-secondary btn-small" onclick="openMov()">+ Movimento</button></div>
+          <div id="movList" class="list" style="margin-top:12px"></div>
         </div>
       </div>
+    </section>
 
-      <div class="three-cols">
-        <div class="field">
-          <label class="label">Desconto (R$)</label>
-          <input class="input" id="orderDiscount" type="number" step="0.01" value="0" oninput="calculateOrderTotal()" />
-        </div>
-        <div class="field">
-          <label class="label">Frete (R$)</label>
-          <input class="input" id="orderFreight" type="number" step="0.01" value="0" oninput="calculateOrderTotal()" />
-        </div>
-        <div class="field">
-          <label class="label">Valor final (R$)</label>
-          <input class="input" id="orderFinalTotal" type="number" step="0.01" value="0" />
+    <!-- CLIENTES -->
+    <section id="screen-clientes" class="screen">
+      <div class="searchbar">
+        <div class="between">
+          <input id="clienteSearch" class="input" placeholder="Buscar cliente..." oninput="renderClientes()" />
+          <button class="btn btn-primary" onclick="openCliente()">+ Cliente</button>
         </div>
       </div>
+      <div id="clientesList" class="list"></div>
+    </section>
 
-      <div class="two-cols">
-        <div class="field">
-          <label class="label">Condição de pagamento</label>
-          <input class="input" id="orderPaymentTerms" placeholder="Ex: 50% entrada + 50% entrega" />
-        </div>
-        <div class="field">
-          <label class="label">Vencimento</label>
-          <input class="input" id="orderDueDate" type="date" />
-        </div>
-      </div>
-
-      <div class="field">
-        <label class="label">Informações adicionais</label>
-        <textarea class="textarea" id="orderNotes" placeholder="Detalhes do pedido..."></textarea>
-      </div>
-
-      <div class="field">
-        <label class="label">Despesa do pedido (opcional)</label>
-        <div class="three-cols">
-          <input class="input" id="orderExpenseName" placeholder="Nome da despesa" />
-          <input class="input" id="orderExpenseValue" type="number" step="0.01" placeholder="Valor" />
-          <input class="input" id="orderExpenseDate" type="date" />
+    <!-- PRODUTOS -->
+    <section id="screen-produtos" class="screen">
+      <div class="searchbar">
+        <div class="between">
+          <input id="produtoSearch" class="input" placeholder="Buscar produto ou serviço..." oninput="renderProdutos()" />
+          <button class="btn btn-primary" onclick="openProduto()">+ Produto</button>
         </div>
       </div>
+      <div id="produtosList" class="list"></div>
+    </section>
 
-      <div class="field">
-        <textarea class="textarea" id="orderExpenseDesc" placeholder="Descrição da despesa..."></textarea>
+    <!-- RELATÓRIOS -->
+    <section id="screen-relatorios" class="screen">
+      <div class="grid cards">
+        <div class="card"><h3>Pedidos</h3><p class="muted">Total: <span id="relPedidos"></span></p></div>
+        <div class="card"><h3>Vendas</h3><p class="muted">Valor vendido: <span id="relVendas"></span></p></div>
+        <div class="card"><h3>Pagamentos</h3><p class="muted">Recebido: <span id="relRecebido"></span></p></div>
+        <div class="card"><h3>Finanças</h3><p class="muted">Lucro: <span id="relLucro"></span></p></div>
       </div>
+      <div class="card" style="margin-top:14px">
+        <div class="between">
+          <h3>Exportações rápidas</h3>
+          <div class="row">
+            <button class="btn btn-secondary btn-small" onclick="alert('Em breve: exportar CSV')">CSV</button>
+            <button class="btn btn-secondary btn-small" onclick="alert('Em breve: exportar Excel')">Excel</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
 
-      <div class="field">
-        <label class="row" style="gap: 8px;">
-          <input type="checkbox" id="orderExpenseChargeable" />
-          <span class="subtext">Despesa cobrável</span>
-        </label>
-      </div>
+<!-- NAV -->
+<nav class="nav">
+  <button class="active" onclick="goScreen('dashboard',this)">🏠<span>Início</span></button>
+  <button onclick="goScreen('pedidos',this)">📦<span>Pedidos</span></button>
+  <button onclick="goScreen('financeiro',this)">💰<span>Financeiro</span></button>
+  <div class="fab-wrap"><button class="fab" onclick="openNovo()">+</button></div>
+  <button onclick="goScreen('clientes',this)">👥<span>Clientes</span></button>
+  <button onclick="goScreen('produtos',this)">🧾<span>Produtos</span></button>
+</nav>
 
-      <div class="row">
-        <button class="btn btn-primary" onclick="saveOrder()">Salvar pedido</button>
-        <button class="btn btn-soft" onclick="markOrderPaid()">Marcar como recebido</button>
-        <button class="btn btn-danger" id="deleteOrderBtn" style="display:none;" onclick="deleteOrder()">Excluir</button>
-      </div>
+<!-- MENU NOVO -->
+<div id="novoModal" class="modal">
+  <div class="sheet">
+    <div class="between"><h3>Novo</h3><button class="btn btn-secondary btn-small" onclick="closeModal('novoModal')">Fechar</button></div>
+    <div class="divider"></div>
+    <div class="grid">
+      <button class="btn btn-primary" onclick="closeModal('novoModal');openPedido()">Pedido</button>
+      <button class="btn btn-secondary" onclick="closeModal('novoModal');openCliente()">Cliente</button>
+      <button class="btn btn-secondary" onclick="closeModal('novoModal');openProduto()">Produto/Serviço</button>
+      <button class="btn btn-secondary" onclick="closeModal('novoModal');openPDV()">PDV</button>
     </div>
   </div>
+</div>
 
-  <!-- MODAL PDV -->
-  <div class="modal-backdrop" id="pdvModal">
-    <div class="modal">
-      <div class="modal-header">
-        <div class="modal-title">PDV rápido</div>
-        <button class="close-btn" onclick="closeModal('pdvModal')">✕</button>
-      </div>
-
-      <div class="field">
-        <label class="label">Cliente</label>
-        <select class="select" id="pdvClient"></select>
-      </div>
-
-      <div class="field">
-        <label class="label">Produto / Serviço</label>
-        <select class="select" id="pdvProduct" onchange="syncPDVProduct()"></select>
-      </div>
-
-      <div class="three-cols">
-        <div class="field">
-          <label class="label">Quantidade</label>
-          <input class="input" id="pdvQty" type="number" step="0.01" value="1" oninput="calculatePDV()" />
-        </div>
-        <div class="field">
-          <label class="label">Desconto (R$)</label>
-          <input class="input" id="pdvDiscount" type="number" step="0.01" value="0" oninput="calculatePDV()" />
-        </div>
-        <div class="field">
-          <label class="label">Forma de pagamento</label>
-          <select class="select" id="pdvPayment">
-            <option>Pix</option>
-            <option>Dinheiro</option>
-            <option>Cartão</option>
-            <option>Transferência</option>
-            <option>Boleto</option>
-            <option>Outro</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="field">
-        <label class="label">Total (R$)</label>
-        <input class="input" id="pdvTotal" type="number" step="0.01" value="0" />
-      </div>
-
-      <div class="row">
-        <button class="btn btn-primary" onclick="savePDV()">Finalizar venda</button>
-      </div>
+<!-- CLIENTE -->
+<div id="clienteModal" class="modal modal-center">
+  <div class="sheet">
+    <div class="between"><h3 id="clienteTitle">Novo Cliente</h3><button class="btn btn-secondary btn-small" onclick="closeModal('clienteModal')">Fechar</button></div>
+    <div class="divider"></div>
+    <div class="form-grid">
+      <input id="cNome" class="input" placeholder="Nome" />
+      <input id="cCelular" class="input" placeholder="Celular" />
+      <input id="cEmail" class="input" placeholder="E-mail" />
+      <input id="cCpf" class="input" placeholder="CPF" />
+      <input id="cEndereco" class="input" placeholder="Endereço" />
+      <textarea id="cObs" class="textarea" placeholder="Observações"></textarea>
+    </div>
+    <div class="divider"></div>
+    <div class="between">
+      <button id="clienteDeleteBtn" class="btn btn-danger hidden" onclick="deleteCliente()">Excluir</button>
+      <button class="btn btn-primary" onclick="saveCliente()">Salvar Cliente</button>
     </div>
   </div>
+</div>
 
-  <!-- MODAL CASHFLOW -->
-  <div class="modal-backdrop" id="cashflowModal">
-    <div class="modal">
-      <div class="modal-header">
-        <div class="modal-title">Novo lançamento financeiro</div>
-        <button class="close-btn" onclick="closeModal('cashflowModal')">✕</button>
-      </div>
-
-      <input type="hidden" id="cashflowId" />
-
-      <div class="two-cols">
-        <div class="field">
-          <label class="label">Tipo</label>
-          <select class="select" id="cashflowType">
-            <option value="receita">Receita</option>
-            <option value="despesa">Despesa</option>
-          </select>
-        </div>
-        <div class="field">
-          <label class="label">Data</label>
-          <input class="input" id="cashflowDate" type="date" />
-        </div>
-      </div>
-
-      <div class="field">
-        <label class="label">Nome</label>
-        <input class="input" id="cashflowName" placeholder="Ex: Compra de papel, Venda avulsa..." />
-      </div>
-
-      <div class="field">
-        <label class="label">Valor (R$)</label>
-        <input class="input" id="cashflowValue" type="number" step="0.01" placeholder="0.00" />
-      </div>
-
-      <div class="field">
-        <label class="label">Descrição</label>
-        <textarea class="textarea" id="cashflowDesc" placeholder="Detalhes do lançamento..."></textarea>
-      </div>
-
-      <div class="row">
-        <button class="btn btn-primary" onclick="saveCashflow()">Salvar lançamento</button>
-      </div>
+<!-- PRODUTO -->
+<div id="produtoModal" class="modal modal-center">
+  <div class="sheet">
+    <div class="between"><h3 id="produtoTitle">Novo Produto/Serviço</h3><button class="btn btn-secondary btn-small" onclick="closeModal('produtoModal')">Fechar</button></div>
+    <div class="divider"></div>
+    <div class="form-grid">
+      <input id="pNome" class="input" placeholder="Nome do produto/serviço" />
+      <input id="pVenda" class="input" type="number" step="0.01" placeholder="Valor de venda" />
+      <input id="pCusto" class="input" type="number" step="0.01" placeholder="Valor de custo" />
+      <input id="pUnidade" class="input" placeholder="Unidade (un, m², folha, etc.)" />
+    </div>
+    <div class="divider"></div>
+    <div class="between">
+      <button id="produtoDeleteBtn" class="btn btn-danger hidden" onclick="deleteProduto()">Excluir</button>
+      <button class="btn btn-primary" onclick="saveProduto()">Salvar Produto</button>
     </div>
   </div>
+</div>
 
-  <!-- MODAL CONFIG -->
-  <div class="modal-backdrop" id="settingsModal">
-    <div class="modal">
-      <div class="modal-header">
-        <div class="modal-title">Configurações da empresa</div>
-        <button class="close-btn" onclick="closeModal('settingsModal')">✕</button>
-      </div>
+<!-- PEDIDO -->
+<div id="pedidoModal" class="modal">
+  <div class="sheet">
+    <div class="between"><h3 id="pedidoTitle">Novo Pedido</h3><button class="btn btn-secondary btn-small" onclick="closeModal('pedidoModal')">Fechar</button></div>
+    <div class="divider"></div>
 
-      <div class="field">
-        <label class="label">Nome da empresa</label>
-        <input class="input" id="companyName" placeholder="Nome da empresa" />
-      </div>
+    <div class="form-grid">
+      <input id="oData" type="date" class="input" />
+      <input id="oEntrega" type="date" class="input" />
+      <select id="oCliente" class="select"></select>
+      <select id="oStatus" class="select">
+        <option>orçamento</option>
+        <option>aguardando aprovação</option>
+        <option>aprovado</option>
+        <option>em produção</option>
+        <option>pronto</option>
+        <option>entregue</option>
+        <option>cancelado</option>
+      </select>
+      <input id="oFrete" type="number" step="0.01" class="input" placeholder="Frete" oninput="calcPedido()" />
+      <select id="oForma" class="select">
+        <option value="">Forma de pagamento</option>
+        <option>Pix</option><option>Dinheiro</option><option>Cartão</option><option>Transferência</option><option>Boleto</option>
+      </select>
+      <input id="oCondicao" class="input" placeholder="Condição de pagamento" />
+      <input id="oDesconto" type="number" step="0.01" class="input" placeholder="Desconto (R$)" oninput="calcPedido()" />
+    </div>
 
-      <div class="two-cols">
-        <div class="field">
-          <label class="label">CPF/CNPJ</label>
-          <input class="input" id="companyDoc" placeholder="CPF ou CNPJ" />
-        </div>
-        <div class="field">
-          <label class="label">Celular</label>
-          <input class="input" id="companyPhone" placeholder="(00) 00000-0000" />
-        </div>
-      </div>
+    <div class="divider"></div>
 
-      <div class="field">
-        <label class="label">E-mail</label>
-        <input class="input" id="companyEmail" placeholder="email@empresa.com" />
-      </div>
+    <div class="between">
+      <h3>Itens</h3>
+      <button class="btn btn-secondary btn-small" onclick="addItemPedido()">+ Item</button>
+    </div>
+    <div id="pedidoItens" class="list" style="margin-top:12px"></div>
 
-      <div class="field">
-        <label class="label">Validade do orçamento</label>
-        <input class="input" id="companyBudgetValidity" placeholder="Ex: 7 dias" />
-      </div>
+    <div class="divider"></div>
 
-      <div class="field">
-        <label class="label">Chave Pix / QR info</label>
-        <input class="input" id="companyPix" placeholder="Sua chave pix" />
-      </div>
+    <div class="between">
+      <h3>Despesas</h3>
+      <button class="btn btn-secondary btn-small" onclick="addDespesaPedido()">+ Despesa</button>
+    </div>
+    <div id="pedidoDespesas" class="list" style="margin-top:12px"></div>
 
-      <div class="field">
-        <label class="label">Observações padrão</label>
-        <textarea class="textarea" id="companyObs" placeholder="Observações padrão dos documentos..."></textarea>
-      </div>
+    <div class="divider"></div>
 
+    <textarea id="oObs" class="textarea" placeholder="Informações adicionais"></textarea>
+
+    <div class="divider"></div>
+
+    <div class="grid cards">
+      <div class="card"><p class="muted">Subtotal</p><div id="sumSubtotal" class="kpi">R$ 0,00</div></div>
+      <div class="card"><p class="muted">Despesas</p><div id="sumDespesas" class="kpi">R$ 0,00</div></div>
+      <div class="card"><p class="muted">Total Final</p><div id="sumTotal" class="kpi">R$ 0,00</div></div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="between">
       <div class="row">
-        <button class="btn btn-primary" onclick="saveSettings()">Salvar configurações</button>
+        <button id="pedidoDeleteBtn" class="btn btn-danger hidden" onclick="deletePedido()">Excluir</button>
+        <button id="pdfBtns" class="btn btn-secondary hidden" onclick="openPdfMenu()">PDF</button>
       </div>
+      <button class="btn btn-primary" onclick="savePedido()">Salvar Pedido</button>
     </div>
   </div>
+</div>
 
-  <!-- Firebase -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-    import {
-      getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, setDoc
-    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+<!-- PDV -->
+<div id="pdvModal" class="modal">
+  <div class="sheet">
+    <div class="between"><h3>PDV</h3><button class="btn btn-secondary btn-small" onclick="closeModal('pdvModal')">Fechar</button></div>
+    <div class="divider"></div>
 
-    // =========================
-    // FIREBASE CONFIG
-    // =========================
-    const firebaseConfig = {
+    <div class="form-grid">
+      <select id="pdvCliente" class="select"></select>
+      <select id="pdvForma" class="select">
+        <option value="">Forma de pagamento</option>
+        <option>Pix</option><option>Dinheiro</option><option>Cartão</option><option>Transferência</option>
+      </select>
+      <input id="pdvDesconto" type="number" step="0.01" class="input" placeholder="Desconto (R$)" oninput="calcPDV()" />
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="between">
+      <h3>Itens da venda</h3>
+      <button class="btn btn-secondary btn-small" onclick="addPDVItem()">+ Item</button>
+    </div>
+    <div id="pdvItens" class="list" style="margin-top:12px"></div>
+
+    <div class="divider"></div>
+
+    <div class="grid cards">
+      <div class="card"><p class="muted">Total da venda</p><div id="pdvTotal" class="kpi">R$ 0,00</div></div>
+    </div>
+
+    <div class="divider"></div>
+    <div class="between">
+      <button class="btn btn-primary" onclick="finalizarPDV()">Finalizar Venda</button>
+    </div>
+  </div>
+</div>
+
+<!-- MOVIMENTO -->
+<div id="movModal" class="modal modal-center">
+  <div class="sheet">
+    <div class="between"><h3>Novo Movimento</h3><button class="btn btn-secondary btn-small" onclick="closeModal('movModal')">Fechar</button></div>
+    <div class="divider"></div>
+    <div class="form-grid">
+      <select id="mTipo" class="select"><option value="receita">Receita</option><option value="despesa">Despesa</option></select>
+      <input id="mNome" class="input" placeholder="Descrição" />
+      <input id="mValor" type="number" step="0.01" class="input" placeholder="Valor" />
+      <input id="mData" type="date" class="input" />
+    </div>
+    <div class="divider"></div>
+    <button class="btn btn-primary" onclick="saveMov()">Salvar Movimento</button>
+  </div>
+</div>
+
+<!-- EMPRESA -->
+<div id="empresaModal" class="modal">
+  <div class="sheet">
+    <div class="between"><h3>Configurações da Empresa</h3><button class="btn btn-secondary btn-small" onclick="closeModal('empresaModal')">Fechar</button></div>
+    <div class="divider"></div>
+    <div class="form-grid">
+      <input id="eNome" class="input" placeholder="Nome da empresa" />
+      <input id="eCpf" class="input" placeholder="CPF/CNPJ" />
+      <input id="eCel" class="input" placeholder="Celular" />
+      <input id="eEmail" class="input" placeholder="E-mail" />
+      <input id="eEndereco" class="input" placeholder="Endereço" />
+      <input id="eCidade" class="input" placeholder="Cidade/UF" />
+      <input id="ePix" class="input" placeholder="Chave Pix" />
+      <input id="ePixNome" class="input" placeholder="Nome do recebedor Pix" />
+      <input id="eValidade" type="number" class="input" placeholder="Validade do orçamento (dias)" />
+      <input id="eLogo" type="file" accept="image/*" class="input" />
+      <textarea id="eObs" class="textarea" placeholder="Observação padrão"></textarea>
+    </div>
+    <div class="divider"></div>
+    <button class="btn btn-primary" onclick="saveEmpresa()">Salvar Configurações</button>
+  </div>
+</div>
+
+<!-- PDF MENU -->
+<div id="pdfModal" class="modal modal-center">
+  <div class="sheet">
+    <div class="between"><h3>Gerar PDF</h3><button class="btn btn-secondary btn-small" onclick="closeModal('pdfModal')">Fechar</button></div>
+    <div class="divider"></div>
+    <div class="grid">
+      <button class="btn btn-primary" onclick="gerarPDF('orcamento')">Gerar Orçamento</button>
+      <button class="btn btn-secondary" onclick="gerarPDF('nota')">Gerar Nota de Venda</button>
+      <button class="btn btn-secondary" onclick="gerarPDF('recibo')">Gerar Recibo</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import {
+  getFirestore, collection, doc, getDocs, getDoc, setDoc, addDoc, updateDoc, deleteDoc
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+const firebaseConfig = {
   apiKey: "AIzaSyCnkcFOhfQq5E_Tn4MRKeZDdJCkNPcCKWY",
   authDomain: "grafrei-85c44.firebaseapp.com",
   projectId: "grafrei-85c44",
@@ -1239,914 +474,613 @@
   appId: "1:1012281384232:web:12eea73a9711adb0af841d"
 };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-    window.db = db;
-    window.fb = { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, setDoc };
+const col = {
+  clientes: collection(db,"clientes"),
+  produtos: collection(db,"produtos"),
+  pedidos: collection(db,"pedidos"),
+  movimentos: collection(db,"movimentos"),
+  config: doc(db,"config","empresa")
+};
 
-    window.dispatchEvent(new Event("firebase-ready"));
-  </script>
+const hoje = new Date().toISOString().slice(0,10);
+const meses = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
 
-  <script>
-    // =========================
-    // STATE
-    // =========================
-    const state = {
-      clients: [],
-      products: [],
-      orders: [],
-      cashflow: [],
-      settings: {},
-      orderFilter: "10",
-      calendarDate: new Date()
-    };
+let state = {
+  clientes:[], produtos:[], pedidos:[], movimentos:[],
+  empresa:{nomeEmpresa:"",cpfCnpj:"",celular:"",email:"",endereco:"",cidadeUf:"",chavePix:"",nomePix:"",validadeOrcamento:7,logoBase64:"",observacaoPadrao:""},
+  editCliente:null, editProduto:null, editPedido:null,
+  pedidoItens:[], pedidoDespesas:[], pdvItens:[]
+};
 
-    const months = [
-      "Janeiro","Fevereiro","Março","Abril","Maio","Junho",
-      "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"
-    ];
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const money = v => Number(v||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+const n = v => Number(v||0);
+const uid = () => crypto.randomUUID();
+const byDate = (a,b) => (a||"9999-12-31").localeCompare(b||"9999-12-31");
+const todayObj = () => new Date(hoje+"T00:00:00");
+const parseDate = d => d ? new Date(d+"T00:00:00") : null;
+const inRange = (d,i,f) => !d?false:(!i||d>=i)&&(!f||d<=f);
+const esc = s => (s||"").toString().replace(/[<>&"]/g,m=>({ "<":"&lt;",">":"&gt;","&":"&amp;",'"':"&quot;" }[m]));
 
-    // =========================
-    // HELPERS
-    // =========================
-    const $ = (id) => document.getElementById(id);
+window.goScreen=(name,btn)=>{
+  $$(".screen").forEach(s=>s.classList.remove("active"));
+  $("#screen-"+name).classList.add("active");
+  $$(".nav button").forEach(b=>b.classList.remove("active"));
+  if(btn) btn.classList.add("active");
+  if(name==="dashboard") renderDashboard();
+  if(name==="pedidos") renderPedidos();
+  if(name==="financeiro") renderFinanceiro();
+  if(name==="clientes") renderClientes();
+  if(name==="produtos") renderProdutos();
+  if(name==="relatorios") renderRelatorios();
+};
 
-    const todayISO = () => {
-      const d = new Date();
-      const m = String(d.getMonth()+1).padStart(2, "0");
-      const day = String(d.getDate()).padStart(2, "0");
-      return `${d.getFullYear()}-${m}-${day}`;
-    };
+window.openNovo=()=>$("#novoModal").classList.add("active");
+window.closeModal=id=>$("#"+id).classList.remove("active");
+window.openPdfMenu=()=>$("#pdfModal").classList.add("active");
 
-    const formatMoney = (v = 0) =>
-      Number(v || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+function fillDateSelectors(){
+  $("#dashMes").innerHTML = meses.map((m,i)=>`<option value="${i+1}">${m}</option>`).join("");
+  const anoAtual = new Date().getFullYear();
+  let anos = [];
+  for(let a=anoAtual-4;a<=anoAtual+4;a++) anos.push(a);
+  $("#dashAno").innerHTML = anos.map(a=>`<option value="${a}">${a}</option>`).join("");
+  $("#dashMes").value = new Date().getMonth()+1;
+  $("#dashAno").value = anoAtual;
+  $("#dashMes").onchange = renderDashboard;
+  $("#dashAno").onchange = renderDashboard;
 
-    const formatDateBR = (dateStr) => {
-      if (!dateStr) return "-";
-      const [y,m,d] = dateStr.split("-");
-      return `${d}/${m}/${y}`;
-    };
+  const ini = new Date(); ini.setDate(1);
+  $("#finInicio").value = ini.toISOString().slice(0,10);
+  $("#finFim").value = hoje;
+  $("#mData").value = hoje;
+}
 
-    const safeNum = (v) => Number(v || 0);
+async function loadAll(){
+  try{
+    const [c,p,o,m,conf] = await Promise.all([
+      getDocs(col.clientes), getDocs(col.produtos), getDocs(col.pedidos), getDocs(col.movimentos), getDoc(col.config)
+    ]);
+    state.clientes = c.docs.map(d=>({id:d.id,...d.data()}));
+    state.produtos = p.docs.map(d=>({id:d.id,...d.data()}));
+    state.pedidos = o.docs.map(d=>({id:d.id,...d.data()}));
+    state.movimentos = m.docs.map(d=>({id:d.id,...d.data()}));
+    state.empresa = conf.exists() ? conf.data() : state.empresa;
+    renderAll();
+  }catch(err){
+    console.error("Erro ao carregar dados:",err);
+    alert("Erro ao carregar dados do Firebase. Verifique regras e configuração.");
+  }
+}
 
-    const isSameMonthYear = (dateStr, month, year) => {
-      if (!dateStr) return false;
-      const d = new Date(dateStr + "T00:00:00");
-      return d.getMonth() === Number(month) && d.getFullYear() === Number(year);
-    };
+function renderAll(){
+  fillClienteOptions();
+  fillProdutoOptions();
+  renderDashboard();
+  renderPedidos();
+  renderFinanceiro();
+  renderClientes();
+  renderProdutos();
+  renderRelatorios();
+}
 
-    const getStatusPillClass = (status = "") => {
-      status = status.toLowerCase();
-      if (status.includes("cancel")) return "danger";
-      if (status.includes("entregue") || status.includes("pronto")) return "success";
-      if (status.includes("aprova")) return "warning";
-      return "info";
-    };
+function fillClienteOptions(){
+  const opts = `<option value="">Selecione cliente</option>` + state.clientes
+    .sort((a,b)=>(a.nome||"").localeCompare(b.nome||""))
+    .map(c=>`<option value="${c.id}">${esc(c.nome||"Sem nome")} ${c.celular?`- ${esc(c.celular)}`:""}</option>`).join("");
+  $("#oCliente").innerHTML = opts + `<option value="_novo">+ Cadastro rápido</option>`;
+  $("#pdvCliente").innerHTML = opts + `<option value="_novo">+ Cadastro rápido</option>`;
+  $("#oCliente").onchange = e => e.target.value==="_novo" && openCliente();
+  $("#pdvCliente").onchange = e => e.target.value==="_novo" && openCliente();
+}
 
-    function saveTheme(theme) {
-      localStorage.setItem("grafrei_theme", theme);
+function fillProdutoOptions(){}
+
+function getPedidoTotals(p){
+  const subtotal = (p.itens||[]).reduce((s,i)=>s+n(i.quantidade)*n(i.valorVenda),0);
+  const despesas = (p.despesas||[]).reduce((s,d)=>s+n(d.valor),0);
+  const desconto = n(p.desconto);
+  const frete = n(p.frete);
+  const total = subtotal + despesas + frete - desconto;
+  const recebido = n(p.valorRecebido || (p.status==="entregue" ? total : 0));
+  const pendente = Math.max(0,total-recebido);
+  const custo = (p.itens||[]).reduce((s,i)=>s+n(i.quantidade)*n(i.valorCusto),0) + despesas;
+  const lucro = total - custo;
+  return {subtotal,despesas,desconto,frete,total,recebido,pendente,custo,lucro};
+}
+
+function renderDashboard(){
+  const mes = Number($("#dashMes").value), ano = Number($("#dashAno").value);
+  const pedidos = state.pedidos.filter(p=>{
+    const d = parseDate(p.data || p.criadoEm?.slice?.(0,10));
+    return d && d.getMonth()+1===mes && d.getFullYear()===ano;
+  });
+  const clientesAtivos = new Set(pedidos.map(p=>p.clienteId).filter(Boolean)).size;
+  let vendido=0, recebido=0, pendente=0, atraso=0, lucro=0;
+  pedidos.forEach(p=>{
+    const t = getPedidoTotals(p);
+    vendido += t.total; recebido += t.recebido; pendente += t.pendente; lucro += t.lucro;
+    const ent = parseDate(p.entrega);
+    if(t.pendente>0 && ent && ent < todayObj() && p.status!=="cancelado" && p.status!=="entregue") atraso += t.pendente;
+  });
+  $("#dashboardCards").innerHTML = [
+    ["Clientes ativos",clientesAtivos],
+    ["Pedidos",pedidos.length],
+    ["Valor vendido",money(vendido)],
+    ["Recebido",money(recebido)],
+    ["A receber",money(pendente)],
+    ["Em atraso",money(atraso)],
+    ["Lucro",money(lucro)]
+  ].map(([t,v])=>`<div class="card"><p class="muted">${t}</p><div class="kpi">${v}</div></div>`).join("");
+
+  const entregas = [...state.pedidos].filter(p=>p.status!=="entregue"&&p.status!=="cancelado").sort((a,b)=>byDate(a.entrega,b.entrega)).slice(0,8);
+  $("#dashEntregas").innerHTML = entregas.length ? entregas.map(p=>`
+    <div class="item">
+      <div class="between">
+        <div>
+          <h4>${esc((p.itens?.[0]?.nome||"Pedido"))}</h4>
+          <p>${esc(p.clienteNome||"Sem cliente")} • Entrega: ${p.entrega||"-"}</p>
+        </div>
+        <span class="status ${esc((p.status||"").replaceAll(" ","-"))}">${esc(p.status||"-")}</span>
+      </div>
+    </div>`).join("") : `<div class="empty">Sem entregas próximas.</div>`;
+
+  const pend = [...state.pedidos].filter(p=>getPedidoTotals(p).pendente>0).sort((a,b)=>byDate(a.entrega,b.entrega)).slice(0,8);
+  $("#dashPendentes").innerHTML = pend.length ? pend.map(p=>{
+    const t=getPedidoTotals(p);
+    return `<div class="item"><div class="between"><div><h4>${esc(p.clienteNome||"Sem cliente")}</h4><p>${esc(p.itens?.[0]?.nome||"Pedido")} • ${p.entrega||"-"}</p></div><div class="right"><div class="money">${money(t.pendente)}</div></div></div></div>`;
+  }).join("") : `<div class="empty">Nenhum pagamento pendente.</div>`;
+}
+
+function renderPedidos(){
+  const q = ($("#pedidoSearch").value||"").toLowerCase().trim();
+  const f = $("#pedidoFiltro").value;
+  let arr = [...state.pedidos].sort((a,b)=>byDate(a.entrega,b.entrega));
+  if(f!=="all"){
+    if(f==="10") arr = arr.slice(0,10);
+    else{
+      const dias = Number(f);
+      const lim = new Date(); lim.setDate(lim.getDate()-dias);
+      arr = arr.filter(p=>parseDate(p.data||p.criadoEm?.slice?.(0,10)) >= lim);
     }
+  }
+  if(q) arr = arr.filter(p =>
+    (p.clienteNome||"").toLowerCase().includes(q) ||
+    (p.itens||[]).some(i=>(i.nome||"").toLowerCase().includes(q))
+  );
 
-    function loadTheme() {
-      const theme = localStorage.getItem("grafrei_theme") || "dark";
-      document.body.classList.toggle("light", theme === "light");
-    }
-
-    function toggleTheme() {
-      const isLight = document.body.classList.toggle("light");
-      saveTheme(isLight ? "light" : "dark");
-    }
-
-    function openModal(id) {
-      $(id).classList.add("show");
-    }
-
-    function closeModal(id) {
-      $(id).classList.remove("show");
-    }
-
-    function goToPage(page, btn = null) {
-      document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
-      $(`page-${page}`).classList.add("active");
-
-      document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
-      const targetBtn = btn || document.querySelector(`.nav-btn[data-page="${page}"]`);
-      if (targetBtn) targetBtn.classList.add("active");
-
-      if (page === "agenda") renderCalendar();
-      if (page === "financeiro") renderFinance();
-      if (page === "clientes") renderClients();
-      if (page === "produtos") renderProducts();
-      if (page === "pedidos") renderOrders();
-      if (page === "relatorios") renderReports();
-    }
-
-    function fillMonthYearFilters() {
-      const currentYear = new Date().getFullYear();
-      const years = [];
-      for (let y = currentYear - 3; y <= currentYear + 3; y++) years.push(y);
-
-      const monthSelects = [$("filterMonth"), $("financeMonth")];
-      const yearSelects = [$("filterYear"), $("financeYear")];
-
-      monthSelects.forEach(sel => {
-        sel.innerHTML = months.map((m, i) => `<option value="${i}">${m}</option>`).join("");
-        sel.value = new Date().getMonth();
-      });
-
-      yearSelects.forEach(sel => {
-        sel.innerHTML = years.map(y => `<option value="${y}">${y}</option>`).join("");
-        sel.value = currentYear;
-      });
-    }
-
-    function refreshSelects() {
-      const clientOptions = `<option value="">Selecione...</option>` +
-        state.clients.map(c => `<option value="${c.id}">${c.name || "Sem nome"}</option>`).join("");
-
-      const productOptions = `<option value="">Selecione...</option>` +
-        state.products.map(p => `<option value="${p.id}">${p.name || "Sem nome"}</option>`).join("");
-
-      $("orderClient").innerHTML = clientOptions;
-      $("pdvClient").innerHTML = clientOptions;
-      $("orderProduct").innerHTML = productOptions;
-      $("pdvProduct").innerHTML = productOptions;
-    }
-
-    // =========================
-    // FIREBASE CRUD
-    // =========================
-    async function fetchCollection(name) {
-      const snap = await window.fb.getDocs(window.fb.collection(window.db, name));
-      return snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    }
-
-    async function loadAllData() {
-      try {
-        state.clients = await fetchCollection("clients");
-        state.products = await fetchCollection("products");
-        state.orders = await fetchCollection("orders");
-        state.cashflow = await fetchCollection("cashflow");
-
-        const settingsDocs = await fetchCollection("settings");
-        state.settings = settingsDocs[0] || {};
-
-        applySettingsToUI();
-        refreshSelects();
-        renderAll();
-      } catch (err) {
-        console.error("Erro ao carregar dados:", err);
-        alert("Erro ao carregar dados do Firebase. Confira sua configuração.");
-      }
-    }
-
-    // =========================
-    // CLIENTES
-    // =========================
-    function openClientModal(client = null) {
-      $("clientModalTitle").textContent = client ? "Editar cliente" : "Novo cliente";
-      $("deleteClientBtn").style.display = client ? "inline-flex" : "none";
-
-      $("clientId").value = client?.id || "";
-      $("clientName").value = client?.name || "";
-      $("clientPhone").value = client?.phone || "";
-      $("clientEmail").value = client?.email || "";
-      $("clientAddress").value = client?.address || "";
-      $("clientCpf").value = client?.cpf || "";
-      $("clientObs").value = client?.obs || "";
-
-      openModal("clientModal");
-    }
-
-    async function saveClient() {
-      const payload = {
-        name: $("clientName").value.trim(),
-        phone: $("clientPhone").value.trim(),
-        email: $("clientEmail").value.trim(),
-        address: $("clientAddress").value.trim(),
-        cpf: $("clientCpf").value.trim(),
-        obs: $("clientObs").value.trim(),
-        updatedAt: Date.now()
-      };
-
-      if (!payload.name) return alert("Informe o nome do cliente.");
-
-      const id = $("clientId").value;
-      try {
-        if (id) {
-          await window.fb.updateDoc(window.fb.doc(window.db, "clients", id), payload);
-        } else {
-          payload.createdAt = Date.now();
-          await window.fb.addDoc(window.fb.collection(window.db, "clients"), payload);
-        }
-        closeModal("clientModal");
-        await loadAllData();
-      } catch (err) {
-        console.error(err);
-        alert("Erro ao salvar cliente.");
-      }
-    }
-
-    async function deleteClient() {
-      const id = $("clientId").value;
-      if (!id) return;
-      if (!confirm("Excluir este cliente?")) return;
-
-      await window.fb.deleteDoc(window.fb.doc(window.db, "clients", id));
-      closeModal("clientModal");
-      await loadAllData();
-    }
-
-    function renderClients() {
-      const term = $("clientSearch").value.toLowerCase().trim();
-      const list = state.clients
-        .filter(c =>
-          (c.name || "").toLowerCase().includes(term) ||
-          (c.phone || "").toLowerCase().includes(term)
-        )
-        .sort((a,b) => (a.name || "").localeCompare(b.name || ""));
-
-      $("clientsList").innerHTML = list.length ? list.map(c => `
-        <div class="item">
-          <div class="item-title">${c.name || "Sem nome"}</div>
-          <div class="item-meta">
-            <span>📞 ${c.phone || "-"}</span>
-            <span>✉ ${c.email || "-"}</span>
-          </div>
-          <div class="subtext">${c.address || "Sem endereço cadastrado"}</div>
-          <div class="item-actions">
-            <button class="btn btn-soft" onclick='openClientModal(${JSON.stringify(c).replace(/'/g, "&apos;")})'>Editar</button>
+  $("#pedidosList").innerHTML = arr.length ? arr.map(p=>{
+    const t = getPedidoTotals(p);
+    return `
+    <div class="item">
+      <div class="between">
+        <div>
+          <h4>${esc(p.itens?.[0]?.nome||"Pedido sem item")}</h4>
+          <p>${esc(p.clienteNome||"Sem cliente")} • Pedido: ${p.data||"-"} • Entrega: ${p.entrega||"-"}</p>
+          <p>${money(t.total)} • Pendente: ${money(t.pendente)}</p>
+        </div>
+        <div class="right">
+          <span class="status ${esc((p.status||"").replaceAll(" ","-"))}">${esc(p.status||"-")}</span>
+          <div class="row" style="justify-content:flex-end;margin-top:8px">
+            <button class="btn btn-secondary btn-small" onclick="editPedido('${p.id}')">Editar</button>
+            <button class="btn btn-secondary btn-small" onclick="quickPdf('${p.id}')">PDF</button>
           </div>
         </div>
-      `).join("") : `<div class="empty-state">Nenhum cliente encontrado.</div>`;
-    }
+      </div>
+    </div>`;
+  }).join("") : `<div class="empty">Nenhum pedido encontrado.</div>`;
+}
 
-    // =========================
-    // PRODUTOS
-    // =========================
-    function openProductModal(product = null) {
-      $("productModalTitle").textContent = product ? "Editar produto / serviço" : "Novo produto / serviço";
-      $("deleteProductBtn").style.display = product ? "inline-flex" : "none";
+function renderFinanceiro(){
+  const ini = parseDate($("#finInicio").value), fim = parseDate($("#finFim").value);
+  const pedidos = state.pedidos.filter(p=>inRange(parseDate(p.data||p.criadoEm?.slice?.(0,10)),ini,fim));
+  const movs = state.movimentos.filter(m=>inRange(parseDate(m.data),ini,fim));
+  let recebido=0, receber=0, atraso=0, receitas=0, despesas=0, lucro=0;
+  pedidos.forEach(p=>{
+    const t = getPedidoTotals(p);
+    recebido += t.recebido; receber += t.pendente; lucro += t.lucro;
+    const ent = parseDate(p.entrega);
+    if(t.pendente>0 && ent && ent < todayObj()) atraso += t.pendente;
+  });
+  movs.forEach(m=> m.tipo==="receita" ? receitas+=n(m.valor) : despesas+=n(m.valor));
+  $("#financeiroCards").innerHTML = [
+    ["Recebido",money(recebido)],
+    ["A receber",money(receber)],
+    ["Atrasado",money(atraso)],
+    ["Receitas",money(receitas)],
+    ["Despesas",money(despesas)],
+    ["Lucro",money(lucro + receitas - despesas)]
+  ].map(([t,v])=>`<div class="card"><p class="muted">${t}</p><div class="kpi">${v}</div></div>`).join("");
 
-      $("productId").value = product?.id || "";
-      $("productName").value = product?.name || "";
-      $("productSale").value = product?.sale || "";
-      $("productCost").value = product?.cost || "";
-      $("productUnit").value = product?.unit || "";
-      $("productObs").value = product?.obs || "";
+  const pags = pedidos.filter(p=>getPedidoTotals(p).pendente>0 || getPedidoTotals(p).recebido>0).sort((a,b)=>byDate(a.entrega,b.entrega));
+  $("#pagamentosList").innerHTML = pags.length ? pags.map(p=>{
+    const t=getPedidoTotals(p);
+    const atrasoTxt = (t.pendente>0 && p.entrega && parseDate(p.entrega)<todayObj()) ? ` <span class="tag">Atrasado</span>` : "";
+    return `<div class="item"><div class="between"><div><h4>${esc(p.clienteNome||"Sem cliente")}</h4><p>${esc(p.itens?.[0]?.nome||"Pedido")} • ${p.entrega||"-"}</p></div><div class="right"><div class="money">${money(t.pendente)}</div><p class="mini muted">Recebido ${money(t.recebido)}</p>${atrasoTxt}</div></div></div>`;
+  }).join("") : `<div class="empty">Sem pagamentos no período.</div>`;
 
-      openModal("productModal");
-    }
+  $("#movList").innerHTML = movs.length ? movs.sort((a,b)=>byDate(b.data,a.data)).map(m=>`
+    <div class="item">
+      <div class="between">
+        <div><h4>${esc(m.nome)}</h4><p>${m.data||"-"} • ${m.tipo}</p></div>
+        <div class="money">${money(m.valor)}</div>
+      </div>
+    </div>`).join("") : `<div class="empty">Sem movimentos no período.</div>`;
+}
 
-    async function saveProduct() {
-      const payload = {
-        name: $("productName").value.trim(),
-        sale: safeNum($("productSale").value),
-        cost: safeNum($("productCost").value),
-        unit: $("productUnit").value.trim(),
-        obs: $("productObs").value.trim(),
-        updatedAt: Date.now()
-      };
+function renderClientes(){
+  const q = ($("#clienteSearch").value||"").toLowerCase().trim();
+  let arr = [...state.clientes].sort((a,b)=>(a.nome||"").localeCompare(b.nome||""));
+  if(q) arr = arr.filter(c => [c.nome,c.celular,c.email,c.cpf].some(v=>(v||"").toLowerCase().includes(q)));
+  $("#clientesList").innerHTML = arr.length ? arr.map(c=>`
+    <div class="item">
+      <div class="between">
+        <div><h4>${esc(c.nome||"Sem nome")}</h4><p>${esc(c.celular||"-")} • ${esc(c.email||"-")}</p></div>
+        <button class="btn btn-secondary btn-small" onclick="editCliente('${c.id}')">Editar</button>
+      </div>
+    </div>`).join("") : `<div class="empty">Nenhum cliente cadastrado.</div>`;
+}
 
-      if (!payload.name) return alert("Informe o nome do produto/serviço.");
+function renderProdutos(){
+  const q = ($("#produtoSearch").value||"").toLowerCase().trim();
+  let arr = [...state.produtos].sort((a,b)=>(a.nome||"").localeCompare(b.nome||""));
+  if(q) arr = arr.filter(p => (p.nome||"").toLowerCase().includes(q));
+  $("#produtosList").innerHTML = arr.length ? arr.map(p=>`
+    <div class="item">
+      <div class="between">
+        <div><h4>${esc(p.nome||"Sem nome")}</h4><p>Venda: ${money(p.valorVenda)} • Custo: ${money(p.valorCusto)} • ${esc(p.unidade||"un")}</p></div>
+        <button class="btn btn-secondary btn-small" onclick="editProduto('${p.id}')">Editar</button>
+      </div>
+    </div>`).join("") : `<div class="empty">Nenhum produto cadastrado.</div>`;
+}
 
-      const id = $("productId").value;
-      try {
-        if (id) {
-          await window.fb.updateDoc(window.fb.doc(window.db, "products", id), payload);
-        } else {
-          payload.createdAt = Date.now();
-          await window.fb.addDoc(window.fb.collection(window.db, "products"), payload);
-        }
-        closeModal("productModal");
-        await loadAllData();
-      } catch (err) {
-        console.error(err);
-        alert("Erro ao salvar produto/serviço.");
-      }
-    }
+function renderRelatorios(){
+  const totalPedidos = state.pedidos.length;
+  const vendas = state.pedidos.reduce((s,p)=>s+getPedidoTotals(p).total,0);
+  const recebido = state.pedidos.reduce((s,p)=>s+getPedidoTotals(p).recebido,0);
+  const lucro = state.pedidos.reduce((s,p)=>s+getPedidoTotals(p).lucro,0)
+    + state.movimentos.reduce((s,m)=>s+(m.tipo==="receita"?n(m.valor):-n(m.valor)),0);
+  $("#relPedidos").textContent = totalPedidos;
+  $("#relVendas").textContent = money(vendas);
+  $("#relRecebido").textContent = money(recebido);
+  $("#relLucro").textContent = money(lucro);
+}
 
-    async function deleteProduct() {
-      const id = $("productId").value;
-      if (!id) return;
-      if (!confirm("Excluir este produto/serviço?")) return;
+window.openCliente=(id=null)=>{
+  state.editCliente=id;
+  $("#clienteTitle").textContent = id ? "Editar Cliente" : "Novo Cliente";
+  $("#clienteDeleteBtn").classList.toggle("hidden",!id);
+  const c = state.clientes.find(x=>x.id===id)||{};
+  $("#cNome").value = c.nome||""; $("#cCelular").value = c.celular||""; $("#cEmail").value = c.email||"";
+  $("#cCpf").value = c.cpf||""; $("#cEndereco").value = c.endereco||""; $("#cObs").value = c.obs||"";
+  $("#clienteModal").classList.add("active");
+};
+window.editCliente=id=>openCliente(id);
 
-      await window.fb.deleteDoc(window.fb.doc(window.db, "products", id));
-      closeModal("productModal");
-      await loadAllData();
-    }
+window.openProduto=(id=null)=>{
+  state.editProduto=id;
+  $("#produtoTitle").textContent = id ? "Editar Produto/Serviço" : "Novo Produto/Serviço";
+  $("#produtoDeleteBtn").classList.toggle("hidden",!id);
+  const p = state.produtos.find(x=>x.id===id)||{};
+  $("#pNome").value = p.nome||""; $("#pVenda").value = p.valorVenda||""; $("#pCusto").value = p.valorCusto||""; $("#pUnidade").value = p.unidade||"";
+  $("#produtoModal").classList.add("active");
+};
+window.editProduto=id=>openProduto(id);
 
-    function renderProducts() {
-      const term = $("productSearch").value.toLowerCase().trim();
-      const list = state.products
-        .filter(p => (p.name || "").toLowerCase().includes(term))
-        .sort((a,b) => (a.name || "").localeCompare(b.name || ""));
+window.openPedido=(id=null)=>{
+  state.editPedido=id;
+  $("#pedidoTitle").textContent = id ? "Editar Pedido" : "Novo Pedido";
+  $("#pedidoDeleteBtn").classList.toggle("hidden",!id);
+  $("#pdfBtns").classList.toggle("hidden",!id);
+  const p = state.pedidos.find(x=>x.id===id)||{};
+  $("#oData").value = p.data||hoje; $("#oEntrega").value = p.entrega||hoje; $("#oCliente").value = p.clienteId||"";
+  $("#oStatus").value = p.status||"orçamento"; $("#oFrete").value = p.frete||""; $("#oForma").value = p.formaPagamento||"";
+  $("#oCondicao").value = p.condicaoPagamento||""; $("#oDesconto").value = p.desconto||""; $("#oObs").value = p.observacoes||"";
+  state.pedidoItens = JSON.parse(JSON.stringify(p.itens||[]));
+  state.pedidoDespesas = JSON.parse(JSON.stringify(p.despesas||[]));
+  renderPedidoItens(); renderPedidoDespesas(); calcPedido();
+  $("#pedidoModal").classList.add("active");
+};
+window.editPedido=id=>openPedido(id);
 
-      $("productsList").innerHTML = list.length ? list.map(p => `
-        <div class="item">
-          <div class="item-title">${p.name || "Sem nome"}</div>
-          <div class="item-meta">
-            <span>Venda: ${formatMoney(p.sale)}</span>
-            <span>Custo: ${formatMoney(p.cost)}</span>
-            <span>Unidade: ${p.unit || "-"}</span>
-          </div>
-          <div class="subtext">${p.obs || "Sem observações"}</div>
-          <div class="item-actions">
-            <button class="btn btn-soft" onclick='openProductModal(${JSON.stringify(p).replace(/'/g, "&apos;")})'>Editar</button>
-          </div>
-        </div>
-      `).join("") : `<div class="empty-state">Nenhum item encontrado.</div>`;
-    }
+window.openPDV=()=>{
+  state.pdvItens = [];
+  $("#pdvCliente").value = "";
+  $("#pdvForma").value = "";
+  $("#pdvDesconto").value = "";
+  renderPDVItens(); calcPDV();
+  $("#pdvModal").classList.add("active");
+};
 
-    // =========================
-    // PEDIDOS
-    // =========================
-    function openOrderModal(order = null) {
-      $("orderModalTitle").textContent = order ? "Editar pedido" : "Novo pedido";
-      $("deleteOrderBtn").style.display = order ? "inline-flex" : "none";
+window.openMov=()=>$("#movModal").classList.add("active");
+window.openEmpresa=()=>{
+  const e = state.empresa||{};
+  $("#eNome").value=e.nomeEmpresa||""; $("#eCpf").value=e.cpfCnpj||""; $("#eCel").value=e.celular||""; $("#eEmail").value=e.email||"";
+  $("#eEndereco").value=e.endereco||""; $("#eCidade").value=e.cidadeUf||""; $("#ePix").value=e.chavePix||"";
+  $("#ePixNome").value=e.nomePix||""; $("#eValidade").value=e.validadeOrcamento||7; $("#eObs").value=e.observacaoPadrao||"";
+  $("#empresaModal").classList.add("active");
+};
 
-      $("orderId").value = order?.id || "";
-      $("orderDate").value = order?.date || todayISO();
-      $("orderStatus").value = order?.status || "orçamento";
-      $("orderClient").value = order?.clientId || "";
-      $("orderPaymentMethod").value = order?.paymentMethod || "Pix";
-      $("orderProduct").value = order?.productId || "";
-      $("orderQty").value = order?.qty || 1;
-      $("orderUnitPrice").value = order?.unitPrice || 0;
-      $("orderUnitCost").value = order?.unitCost || 0;
-      $("orderDiscount").value = order?.discount || 0;
-      $("orderFreight").value = order?.freight || 0;
-      $("orderFinalTotal").value = order?.finalTotal || 0;
-      $("orderPaymentTerms").value = order?.paymentTerms || "";
-      $("orderDueDate").value = order?.dueDate || "";
-      $("orderNotes").value = order?.notes || "";
-      $("orderExpenseName").value = order?.expenseName || "";
-      $("orderExpenseValue").value = order?.expenseValue || "";
-      $("orderExpenseDate").value = order?.expenseDate || todayISO();
-      $("orderExpenseDesc").value = order?.expenseDesc || "";
-      $("orderExpenseChargeable").checked = !!order?.expenseChargeable;
+window.saveCliente=async()=>{
+  const data = {
+    nome:$("#cNome").value.trim(), celular:$("#cCelular").value.trim(), email:$("#cEmail").value.trim(),
+    cpf:$("#cCpf").value.trim(), endereco:$("#cEndereco").value.trim(), obs:$("#cObs").value.trim(), atualizadoEm:new Date().toISOString()
+  };
+  if(!data.nome && !data.celular) return alert("Informe pelo menos nome ou celular.");
+  try{
+    if(state.editCliente) await updateDoc(doc(db,"clientes",state.editCliente),data);
+    else await addDoc(col.clientes,{...data,criadoEm:new Date().toISOString()});
+    closeModal("clienteModal"); await loadAll();
+  }catch(e){ alert("Erro ao salvar cliente."); console.error(e); }
+};
 
-      openModal("orderModal");
-    }
+window.deleteCliente=async()=>{
+  if(!state.editCliente || !confirm("Excluir este cliente?")) return;
+  await deleteDoc(doc(db,"clientes",state.editCliente)); closeModal("clienteModal"); await loadAll();
+};
 
-    $("orderProduct").addEventListener("change", () => {
-      const p = state.products.find(x => x.id === $("orderProduct").value);
-      if (p) {
-        $("orderUnitPrice").value = p.sale || 0;
-        $("orderUnitCost").value = p.cost || 0;
-        calculateOrderTotal();
-      }
+window.saveProduto=async()=>{
+  const data = {
+    nome:$("#pNome").value.trim(), valorVenda:n($("#pVenda").value), valorCusto:n($("#pCusto").value), unidade:$("#pUnidade").value.trim()||"un",
+    atualizadoEm:new Date().toISOString()
+  };
+  if(!data.nome) return alert("Informe o nome do produto/serviço.");
+  try{
+    if(state.editProduto) await updateDoc(doc(db,"produtos",state.editProduto),data);
+    else await addDoc(col.produtos,{...data,criadoEm:new Date().toISOString()});
+    closeModal("produtoModal"); await loadAll();
+  }catch(e){ alert("Erro ao salvar produto."); console.error(e); }
+};
+
+window.deleteProduto=async()=>{
+  if(!state.editProduto || !confirm("Excluir este produto?")) return;
+  await deleteDoc(doc(db,"produtos",state.editProduto)); closeModal("produtoModal"); await loadAll();
+};
+
+window.addItemPedido=()=>{
+  state.pedidoItens.push({produtoId:"",nome:"",quantidade:1,unidade:"un",valorVenda:0,valorCusto:0});
+  renderPedidoItens(); calcPedido();
+};
+
+function itemPedidoHtml(i,idx){
+  return `
+  <div class="item">
+    <div class="form-grid">
+      <select class="select" onchange="setPedidoProduto(${idx},this.value)">
+        <option value="">Catálogo (opcional)</option>
+        ${state.produtos.map(p=>`<option value="${p.id}" ${i.produtoId===p.id?"selected":""}>${esc(p.nome)}</option>`).join("")}
+      </select>
+      <input class="input" placeholder="Nome do produto/serviço" value="${esc(i.nome||"")}" oninput="state.pedidoItens[${idx}].nome=this.value" />
+      <input class="input" type="number" step="0.01" placeholder="Quantidade" value="${i.quantidade||1}" oninput="state.pedidoItens[${idx}].quantidade=this.value;calcPedido()" />
+      <input class="input" placeholder="Unidade" value="${esc(i.unidade||"un")}" oninput="state.pedidoItens[${idx}].unidade=this.value" />
+      <input class="input" type="number" step="0.01" placeholder="Valor venda" value="${i.valorVenda||0}" oninput="state.pedidoItens[${idx}].valorVenda=this.value;calcPedido()" />
+      <input class="input" type="number" step="0.01" placeholder="Valor custo" value="${i.valorCusto||0}" oninput="state.pedidoItens[${idx}].valorCusto=this.value;calcPedido()" />
+    </div>
+    <div class="row" style="margin-top:10px"><button class="btn btn-danger btn-small" onclick="removePedidoItem(${idx})">Remover</button></div>
+  </div>`;
+}
+window.setPedidoProduto=(idx,id)=>{
+  const p = state.produtos.find(x=>x.id===id); if(!p) return;
+  Object.assign(state.pedidoItens[idx],{produtoId:p.id,nome:p.nome,unidade:p.unidade||"un",valorVenda:n(p.valorVenda),valorCusto:n(p.valorCusto)});
+  renderPedidoItens(); calcPedido();
+};
+window.removePedidoItem=idx=>{ state.pedidoItens.splice(idx,1); renderPedidoItens(); calcPedido(); };
+function renderPedidoItens(){ $("#pedidoItens").innerHTML = state.pedidoItens.map(itemPedidoHtml).join("") || `<div class="empty">Nenhum item adicionado.</div>`; }
+
+window.addDespesaPedido=()=>{
+  state.pedidoDespesas.push({nome:"",valor:0,data:hoje,descricao:"",cobravel:true});
+  renderPedidoDespesas(); calcPedido();
+};
+window.removeDespesaPedido=idx=>{ state.pedidoDespesas.splice(idx,1); renderPedidoDespesas(); calcPedido(); };
+function renderPedidoDespesas(){
+  $("#pedidoDespesas").innerHTML = state.pedidoDespesas.length ? state.pedidoDespesas.map((d,idx)=>`
+    <div class="item">
+      <div class="form-grid">
+        <input class="input" placeholder="Nome da despesa" value="${esc(d.nome||"")}" oninput="state.pedidoDespesas[${idx}].nome=this.value" />
+        <input class="input" type="number" step="0.01" placeholder="Valor" value="${d.valor||0}" oninput="state.pedidoDespesas[${idx}].valor=this.value;calcPedido()" />
+        <input class="input" type="date" value="${d.data||hoje}" oninput="state.pedidoDespesas[${idx}].data=this.value" />
+        <input class="input" placeholder="Descrição" value="${esc(d.descricao||"")}" oninput="state.pedidoDespesas[${idx}].descricao=this.value" />
+      </div>
+      <div class="row" style="margin-top:10px">
+        <label class="tag"><input type="checkbox" ${d.cobravel?"checked":""} onchange="state.pedidoDespesas[${idx}].cobravel=this.checked;calcPedido()" /> Cobrável</label>
+        <button class="btn btn-danger btn-small" onclick="removeDespesaPedido(${idx})">Remover</button>
+      </div>
+    </div>`).join("") : `<div class="empty">Nenhuma despesa adicionada.</div>`;
+}
+
+window.calcPedido=()=>{
+  const subtotal = state.pedidoItens.reduce((s,i)=>s+n(i.quantidade)*n(i.valorVenda),0);
+  const despesas = state.pedidoDespesas.reduce((s,d)=>s+n(d.valor),0);
+  const total = subtotal + despesas + n($("#oFrete").value) - n($("#oDesconto").value);
+  $("#sumSubtotal").textContent = money(subtotal);
+  $("#sumDespesas").textContent = money(despesas);
+  $("#sumTotal").textContent = money(total);
+};
+
+window.savePedido=async()=>{
+  if(!state.pedidoItens.length) return alert("Adicione pelo menos 1 item.");
+  const clienteId = $("#oCliente").value;
+  const cliente = state.clientes.find(c=>c.id===clienteId);
+  const data = {
+    data:$("#oData").value||hoje, entrega:$("#oEntrega").value||hoje, clienteId:clienteId||"",
+    clienteNome:cliente?.nome || "", status:$("#oStatus").value, frete:n($("#oFrete").value), desconto:n($("#oDesconto").value),
+    formaPagamento:$("#oForma").value, condicaoPagamento:$("#oCondicao").value, observacoes:$("#oObs").value.trim(),
+    itens:state.pedidoItens.map(i=>({...i,quantidade:n(i.quantidade),valorVenda:n(i.valorVenda),valorCusto:n(i.valorCusto)})),
+    despesas:state.pedidoDespesas.map(d=>({...d,valor:n(d.valor)})),
+    atualizadoEm:new Date().toISOString()
+  };
+  try{
+    if(state.editPedido) await updateDoc(doc(db,"pedidos",state.editPedido),data);
+    else await addDoc(col.pedidos,{...data,criadoEm:new Date().toISOString()});
+    closeModal("pedidoModal"); await loadAll();
+  }catch(e){ alert("Erro ao salvar pedido."); console.error(e); }
+};
+
+window.deletePedido=async()=>{
+  if(!state.editPedido || !confirm("Excluir este pedido?")) return;
+  await deleteDoc(doc(db,"pedidos",state.editPedido)); closeModal("pedidoModal"); await loadAll();
+};
+
+window.addPDVItem=()=>{
+  state.pdvItens.push({produtoId:"",nome:"",quantidade:1,unidade:"un",valorVenda:0,valorCusto:0});
+  renderPDVItens(); calcPDV();
+};
+window.removePDVItem=idx=>{ state.pdvItens.splice(idx,1); renderPDVItens(); calcPDV(); };
+window.setPDVProduto=(idx,id)=>{
+  const p = state.produtos.find(x=>x.id===id); if(!p) return;
+  Object.assign(state.pdvItens[idx],{produtoId:p.id,nome:p.nome,unidade:p.unidade||"un",valorVenda:n(p.valorVenda),valorCusto:n(p.valorCusto)});
+  renderPDVItens(); calcPDV();
+};
+function renderPDVItens(){
+  $("#pdvItens").innerHTML = state.pdvItens.length ? state.pdvItens.map((i,idx)=>`
+    <div class="item">
+      <div class="form-grid">
+        <select class="select" onchange="setPDVProduto(${idx},this.value)">
+          <option value="">Catálogo (opcional)</option>
+          ${state.produtos.map(p=>`<option value="${p.id}" ${i.produtoId===p.id?"selected":""}>${esc(p.nome)}</option>`).join("")}
+        </select>
+        <input class="input" placeholder="Nome do produto/serviço" value="${esc(i.nome||"")}" oninput="state.pdvItens[${idx}].nome=this.value" />
+        <input class="input" type="number" step="0.01" placeholder="Quantidade" value="${i.quantidade||1}" oninput="state.pdvItens[${idx}].quantidade=this.value;calcPDV()" />
+        <input class="input" placeholder="Unidade" value="${esc(i.unidade||"un")}" oninput="state.pdvItens[${idx}].unidade=this.value" />
+        <input class="input" type="number" step="0.01" placeholder="Valor venda" value="${i.valorVenda||0}" oninput="state.pdvItens[${idx}].valorVenda=this.value;calcPDV()" />
+      </div>
+      <div class="row" style="margin-top:10px"><button class="btn btn-danger btn-small" onclick="removePDVItem(${idx})">Remover</button></div>
+    </div>`).join("") : `<div class="empty">Nenhum item no PDV.</div>`;
+}
+window.calcPDV=()=>{
+  const total = state.pdvItens.reduce((s,i)=>s+n(i.quantidade)*n(i.valorVenda),0) - n($("#pdvDesconto").value);
+  $("#pdvTotal").textContent = money(total);
+};
+window.finalizarPDV=async()=>{
+  if(!state.pdvItens.length) return alert("Adicione ao menos 1 item.");
+  const clienteId = $("#pdvCliente").value;
+  const cliente = state.clientes.find(c=>c.id===clienteId);
+  const data = {
+    data:hoje, entrega:hoje, clienteId:clienteId||"", clienteNome:cliente?.nome||"", status:"entregue",
+    frete:0, desconto:n($("#pdvDesconto").value), formaPagamento:$("#pdvForma").value, condicaoPagamento:"À vista",
+    observacoes:"Venda PDV", itens:state.pdvItens.map(i=>({...i,quantidade:n(i.quantidade),valorVenda:n(i.valorVenda),valorCusto:n(i.valorCusto)})),
+    despesas:[], valorRecebido: state.pdvItens.reduce((s,i)=>s+n(i.quantidade)*n(i.valorVenda),0) - n($("#pdvDesconto").value),
+    criadoEm:new Date().toISOString(), atualizadoEm:new Date().toISOString()
+  };
+  try{
+    await addDoc(col.pedidos,data);
+    closeModal("pdvModal"); await loadAll(); alert("Venda PDV registrada com sucesso.");
+  }catch(e){ alert("Erro ao finalizar PDV."); console.error(e); }
+};
+
+window.saveMov=async()=>{
+  const data = {tipo:$("#mTipo").value,nome:$("#mNome").value.trim(),valor:n($("#mValor").value),data:$("#mData").value||hoje,criadoEm:new Date().toISOString()};
+  if(!data.nome || !data.valor) return alert("Preencha descrição e valor.");
+  try{ await addDoc(col.movimentos,data); closeModal("movModal"); await loadAll(); }catch(e){ alert("Erro ao salvar movimento."); }
+};
+
+window.saveEmpresa=async()=>{
+  const file = $("#eLogo").files[0];
+  let logoBase64 = state.empresa.logoBase64 || "";
+  if(file) logoBase64 = await fileToBase64(file);
+  const data = {
+    nomeEmpresa:$("#eNome").value.trim(), cpfCnpj:$("#eCpf").value.trim(), celular:$("#eCel").value.trim(), email:$("#eEmail").value.trim(),
+    endereco:$("#eEndereco").value.trim(), cidadeUf:$("#eCidade").value.trim(), chavePix:$("#ePix").value.trim(), nomePix:$("#ePixNome").value.trim(),
+    validadeOrcamento:n($("#eValidade").value)||7, observacaoPadrao:$("#eObs").value.trim(), logoBase64
+  };
+  try{ await setDoc(col.config,data); state.empresa=data; closeModal("empresaModal"); alert("Configurações salvas."); }catch(e){ alert("Erro ao salvar configurações."); }
+};
+
+function fileToBase64(file){
+  return new Promise((res,rej)=>{
+    const fr = new FileReader(); fr.onload=()=>res(fr.result); fr.onerror=rej; fr.readAsDataURL(file);
+  });
+}
+
+window.quickPdf=id=>{ state.editPedido=id; $("#pdfModal").classList.add("active"); };
+
+window.gerarPDF=(tipo)=>{
+  const pedido = state.pedidos.find(p=>p.id===state.editPedido);
+  if(!pedido) return alert("Pedido não encontrado.");
+  const { jsPDF } = window.jspdf;
+  const docPDF = new jsPDF({orientation:"portrait",unit:"mm",format:"a5"});
+  const e = state.empresa || {};
+  const t = getPedidoTotals(pedido);
+  let y = 12;
+
+  if(e.logoBase64){ try{ docPDF.addImage(e.logoBase64,"PNG",10,8,24,16); }catch{} }
+  docPDF.setFontSize(15); docPDF.setTextColor(0,40,104); docPDF.text(e.nomeEmpresa||"Sua Empresa",38,14);
+  docPDF.setFontSize(8); docPDF.setTextColor(80);
+  docPDF.text(`${e.cpfCnpj||""}  ${e.celular||""}  ${e.email||""}`,38,19);
+  docPDF.text(`${e.endereco||""} ${e.cidadeUf||""}`,38,23);
+  y = 30;
+
+  const titulo = tipo==="orcamento"?"ORÇAMENTO":tipo==="nota"?"NOTA DE VENDA":"RECIBO";
+  docPDF.setFontSize(13); docPDF.setTextColor(0,40,104); docPDF.text(titulo,10,y); y+=6;
+  docPDF.setFontSize(9); docPDF.setTextColor(20);
+  docPDF.text(`Cliente: ${pedido.clienteNome||"-"}`,10,y); y+=5;
+  docPDF.text(`Data: ${pedido.data||"-"}    Entrega: ${pedido.entrega||"-"}`,10,y); y+=5;
+  docPDF.text(`Status: ${pedido.status||"-"}    Pagamento: ${pedido.formaPagamento||"-"}`,10,y); y+=7;
+
+  if(tipo!=="recibo"){
+    docPDF.autoTable({
+      startY:y,
+      head:[["Item","Qtd","Un","V.Unit","Subtotal"]],
+      body:(pedido.itens||[]).map(i=>[
+        i.nome||"-", String(i.quantidade||1), i.unidade||"un", money(i.valorVenda), money(n(i.quantidade)*n(i.valorVenda))
+      ]),
+      styles:{fontSize:8},
+      headStyles:{fillColor:[0,40,104]}
     });
-
-    function calculateOrderTotal() {
-      const qty = safeNum($("orderQty").value);
-      const unitPrice = safeNum($("orderUnitPrice").value);
-      const discount = safeNum($("orderDiscount").value);
-      const freight = safeNum($("orderFreight").value);
-      const total = (qty * unitPrice) - discount + freight;
-      $("orderFinalTotal").value = total.toFixed(2);
-    }
-
-    async function saveOrder() {
-      const clientId = $("orderClient").value;
-      const productId = $("orderProduct").value;
-
-      const client = state.clients.find(c => c.id === clientId);
-      const product = state.products.find(p => p.id === productId);
-
-      const payload = {
-        date: $("orderDate").value,
-        status: $("orderStatus").value,
-        clientId,
-        clientName: client?.name || "",
-        productId,
-        productName: product?.name || "",
-        qty: safeNum($("orderQty").value),
-        unitPrice: safeNum($("orderUnitPrice").value),
-        unitCost: safeNum($("orderUnitCost").value),
-        discount: safeNum($("orderDiscount").value),
-        freight: safeNum($("orderFreight").value),
-        finalTotal: safeNum($("orderFinalTotal").value),
-        paymentMethod: $("orderPaymentMethod").value,
-        paymentTerms: $("orderPaymentTerms").value.trim(),
-        dueDate: $("orderDueDate").value,
-        notes: $("orderNotes").value.trim(),
-        expenseName: $("orderExpenseName").value.trim(),
-        expenseValue: safeNum($("orderExpenseValue").value),
-        expenseDate: $("orderExpenseDate").value,
-        expenseDesc: $("orderExpenseDesc").value.trim(),
-        expenseChargeable: $("orderExpenseChargeable").checked,
-        paymentStatus: "pendente",
-        updatedAt: Date.now()
-      };
-
-      if (!payload.date || !payload.clientId || !payload.productId) {
-        return alert("Preencha data, cliente e produto/serviço.");
-      }
-
-      const id = $("orderId").value;
-      try {
-        if (id) {
-          await window.fb.updateDoc(window.fb.doc(window.db, "orders", id), payload);
-        } else {
-          payload.createdAt = Date.now();
-          await window.fb.addDoc(window.fb.collection(window.db, "orders"), payload);
-        }
-
-        if (payload.expenseName && payload.expenseValue > 0) {
-          await window.fb.addDoc(window.fb.collection(window.db, "cashflow"), {
-            type: "despesa",
-            date: payload.expenseDate || payload.date,
-            name: payload.expenseName,
-            value: payload.expenseValue,
-            desc: payload.expenseDesc,
-            linkedOrderDate: payload.date,
-            linkedOrderClient: payload.clientName,
-            createdAt: Date.now()
-          });
-        }
-
-        closeModal("orderModal");
-        await loadAllData();
-      } catch (err) {
-        console.error(err);
-        alert("Erro ao salvar pedido.");
-      }
-    }
-
-    async function markOrderPaid() {
-      const id = $("orderId").value;
-      if (!id) return alert("Salve o pedido primeiro para marcar como recebido.");
-
-      await window.fb.updateDoc(window.fb.doc(window.db, "orders", id), {
-        paymentStatus: "recebido",
-        updatedAt: Date.now()
-      });
-
-      closeModal("orderModal");
-      await loadAllData();
-    }
-
-    async function deleteOrder() {
-      const id = $("orderId").value;
-      if (!id) return;
-      if (!confirm("Excluir este pedido?")) return;
-
-      await window.fb.deleteDoc(window.fb.doc(window.db, "orders", id));
-      closeModal("orderModal");
-      await loadAllData();
-    }
-
-    function setOrderFilter(filter) {
-      state.orderFilter = filter;
-      renderOrders();
-    }
-
-    function getFilteredOrders() {
-      let list = [...state.orders].sort((a,b) => (b.createdAt || 0) - (a.createdAt || 0));
-      const term = $("orderSearch").value.toLowerCase().trim();
-
-      if (term) {
-        list = list.filter(o =>
-          (o.productName || "").toLowerCase().includes(term) ||
-          (o.clientName || "").toLowerCase().includes(term)
-        );
-      }
-
-      if (state.orderFilter === "10") {
-        list = list.slice(0, 10);
-      } else if (state.orderFilter === "30" || state.orderFilter === "60") {
-        const days = Number(state.orderFilter);
-        const now = new Date();
-        list = list.filter(o => {
-          if (!o.date) return false;
-          const d = new Date(o.date + "T00:00:00");
-          const diff = (now - d) / (1000 * 60 * 60 * 24);
-          return diff <= days;
-        });
-      }
-
-      return list;
-    }
-
-    function renderOrders() {
-      const list = getFilteredOrders();
-
-      $("ordersList").innerHTML = list.length ? list.map(o => `
-        <div class="item">
-          <div class="row between">
-            <div>
-              <div class="item-title">${o.productName || "Pedido sem nome"}</div>
-              <div class="item-meta">
-                <span>👤 ${o.clientName || "-"}</span>
-                <span>📅 ${formatDateBR(o.date)}</span>
-                <span>💵 ${formatMoney(o.finalTotal)}</span>
-              </div>
-            </div>
-            <span class="pill ${getStatusPillClass(o.status)}">${o.status || "-"}</span>
-          </div>
-
-          <div class="subtext">
-            Pagamento: ${o.paymentMethod || "-"} • ${o.paymentStatus || "pendente"}
-          </div>
-
-          <div class="item-actions">
-            <button class="btn btn-soft" onclick='openOrderModal(${JSON.stringify(o).replace(/'/g, "&apos;")})'>Editar</button>
-          </div>
-        </div>
-      `).join("") : `<div class="empty-state">Nenhum pedido encontrado.</div>`;
-    }
-
-    // =========================
-    // PDV
-    // =========================
-    function openPDVModal() {
-      $("pdvQty").value = 1;
-      $("pdvDiscount").value = 0;
-      $("pdvTotal").value = 0;
-      $("pdvPayment").value = "Pix";
-      $("pdvClient").value = "";
-      $("pdvProduct").value = "";
-      openModal("pdvModal");
-    }
-
-    function syncPDVProduct() {
-      calculatePDV();
-    }
-
-    function calculatePDV() {
-      const product = state.products.find(p => p.id === $("pdvProduct").value);
-      const qty = safeNum($("pdvQty").value);
-      const discount = safeNum($("pdvDiscount").value);
-      const total = ((product?.sale || 0) * qty) - discount;
-      $("pdvTotal").value = total.toFixed(2);
-    }
-
-    async function savePDV() {
-      const product = state.products.find(p => p.id === $("pdvProduct").value);
-      const client = state.clients.find(c => c.id === $("pdvClient").value);
-
-      if (!product) return alert("Selecione um produto/serviço.");
-
-      await window.fb.addDoc(window.fb.collection(window.db, "orders"), {
-        date: todayISO(),
-        status: "entregue",
-        clientId: client?.id || "",
-        clientName: client?.name || "Cliente avulso",
-        productId: product.id,
-        productName: product.name,
-        qty: safeNum($("pdvQty").value),
-        unitPrice: safeNum(product.sale),
-        unitCost: safeNum(product.cost),
-        discount: safeNum($("pdvDiscount").value),
-        freight: 0,
-        finalTotal: safeNum($("pdvTotal").value),
-        paymentMethod: $("pdvPayment").value,
-        paymentTerms: "À vista",
-        dueDate: todayISO(),
-        notes: "Venda realizada via PDV",
-        paymentStatus: "recebido",
-        createdAt: Date.now(),
-        updatedAt: Date.now()
-      });
-
-      closeModal("pdvModal");
-      await loadAllData();
-    }
-
-    // =========================
-    // FINANCEIRO
-    // =========================
-    function openCashflowModal(item = null) {
-      $("cashflowId").value = item?.id || "";
-      $("cashflowType").value = item?.type || "receita";
-      $("cashflowDate").value = item?.date || todayISO();
-      $("cashflowName").value = item?.name || "";
-      $("cashflowValue").value = item?.value || "";
-      $("cashflowDesc").value = item?.desc || "";
-      openModal("cashflowModal");
-    }
-
-    async function saveCashflow() {
-      const payload = {
-        type: $("cashflowType").value,
-        date: $("cashflowDate").value,
-        name: $("cashflowName").value.trim(),
-        value: safeNum($("cashflowValue").value),
-        desc: $("cashflowDesc").value.trim(),
-        updatedAt: Date.now()
-      };
-
-      if (!payload.name || !payload.date || payload.value <= 0) {
-        return alert("Preencha nome, data e valor.");
-      }
-
-      const id = $("cashflowId").value;
-      if (id) {
-        await window.fb.updateDoc(window.fb.doc(window.db, "cashflow", id), payload);
-      } else {
-        payload.createdAt = Date.now();
-        await window.fb.addDoc(window.fb.collection(window.db, "cashflow"), payload);
-      }
-
-      closeModal("cashflowModal");
-      await loadAllData();
-    }
-
-    function renderFinance() {
-      const month = $("financeMonth").value;
-      const year = $("financeYear").value;
-
-      const periodOrders = state.orders.filter(o => isSameMonthYear(o.date, month, year));
-      const periodCash = state.cashflow.filter(c => isSameMonthYear(c.date, month, year));
-
-      const today = new Date();
-
-      const overdue = periodOrders
-        .filter(o => o.paymentStatus !== "recebido" && o.dueDate && new Date(o.dueDate + "T00:00:00") < today)
-        .reduce((s,o) => s + safeNum(o.finalTotal), 0);
-
-      const receivable = periodOrders
-        .filter(o => o.paymentStatus !== "recebido")
-        .reduce((s,o) => s + safeNum(o.finalTotal), 0);
-
-      const received = periodOrders
-        .filter(o => o.paymentStatus === "recebido")
-        .reduce((s,o) => s + safeNum(o.finalTotal), 0);
-
-      const salesProfit = periodOrders.reduce((sum, o) => {
-        const gross = safeNum(o.finalTotal);
-        const cost = safeNum(o.unitCost) * safeNum(o.qty);
-        const expense = safeNum(o.expenseValue);
-        return sum + (gross - cost - expense);
-      }, 0);
-
-      const extraRevenue = periodCash.filter(c => c.type === "receita").reduce((s,c) => s + safeNum(c.value), 0);
-      const extraExpense = periodCash.filter(c => c.type === "despesa").reduce((s,c) => s + safeNum(c.value), 0);
-      const profit = salesProfit + extraRevenue - extraExpense;
-
-      $("finOverdue").textContent = formatMoney(overdue);
-      $("finReceivable").textContent = formatMoney(receivable);
-      $("finReceived").textContent = formatMoney(received);
-      $("finProfit").textContent = formatMoney(profit);
-      $("cashInText").textContent = formatMoney(extraRevenue);
-      $("cashOutText").textContent = formatMoney(extraExpense);
-
-      $("cashflowList").innerHTML = periodCash.length ? periodCash
-        .sort((a,b) => (b.date || "").localeCompare(a.date || ""))
-        .map(c => `
-          <div class="item">
-            <div class="row between">
-              <div>
-                <div class="item-title">${c.name}</div>
-                <div class="item-meta">
-                  <span>📅 ${formatDateBR(c.date)}</span>
-                  <span>${c.type === "receita" ? "➕ Receita" : "➖ Despesa"}</span>
-                </div>
-              </div>
-              <strong class="${c.type === "receita" ? "kpi-positive" : "kpi-negative"}">${formatMoney(c.value)}</strong>
-            </div>
-            <div class="subtext">${c.desc || "Sem descrição"}</div>
-          </div>
-        `).join("") : `<div class="empty-state">Nenhum lançamento no período.</div>`;
-    }
-
-    // =========================
-    // DASHBOARD
-    // =========================
-    function renderDashboard() {
-      const month = $("filterMonth").value;
-      const year = $("filterYear").value;
-
-      const periodOrders = state.orders.filter(o => isSameMonthYear(o.date, month, year));
-      const clientIds = new Set(periodOrders.map(o => o.clientId).filter(Boolean));
-
-      const today = new Date();
-      const overdue = periodOrders
-        .filter(o => o.paymentStatus !== "recebido" && o.dueDate && new Date(o.dueDate + "T00:00:00") < today)
-        .reduce((s,o) => s + safeNum(o.finalTotal), 0);
-
-      const receivable = periodOrders
-        .filter(o => o.paymentStatus !== "recebido")
-        .reduce((s,o) => s + safeNum(o.finalTotal), 0);
-
-      const received = periodOrders
-        .filter(o => o.paymentStatus === "recebido")
-        .reduce((s,o) => s + safeNum(o.finalTotal), 0);
-
-      const profit = periodOrders.reduce((sum, o) => {
-        return sum + (safeNum(o.finalTotal) - (safeNum(o.unitCost) * safeNum(o.qty)) - safeNum(o.expenseValue));
-      }, 0);
-
-      $("dashClients").textContent = clientIds.size;
-      $("dashOrders").textContent = periodOrders.length;
-      $("dashReceivable").textContent = formatMoney(receivable);
-      $("dashReceived").textContent = formatMoney(received);
-      $("dashOverdue").textContent = formatMoney(overdue);
-      $("dashProfit").textContent = formatMoney(profit);
-
-      const recent = [...state.orders].sort((a,b) => (b.createdAt || 0) - (a.createdAt || 0)).slice(0, 5);
-      $("recentOrders").innerHTML = recent.length ? recent.map(o => `
-        <div class="item">
-          <div class="item-title">${o.productName || "-"}</div>
-          <div class="item-meta">
-            <span>👤 ${o.clientName || "-"}</span>
-            <span>📅 ${formatDateBR(o.date)}</span>
-            <span>💵 ${formatMoney(o.finalTotal)}</span>
-          </div>
-        </div>
-      `).join("") : `<div class="empty-state">Sem pedidos recentes.</div>`;
-
-      const upcoming = [...state.orders]
-        .filter(o => o.date && ["aprovado","em produção","pronto"].includes((o.status || "").toLowerCase()))
-        .sort((a,b) => (a.date || "").localeCompare(b.date || ""))
-        .slice(0, 5);
-
-      $("upcomingAgenda").innerHTML = upcoming.length ? upcoming.map(o => `
-        <div class="item">
-          <div class="item-title">${o.productName || "-"}</div>
-          <div class="item-meta">
-            <span>📅 ${formatDateBR(o.date)}</span>
-            <span>👤 ${o.clientName || "-"}</span>
-          </div>
-        </div>
-      `).join("") : `<div class="empty-state">Nenhum serviço próximo.</div>`;
-    }
-
-    // =========================
-    // CALENDÁRIO
-    // =========================
-    function changeCalendarMonth(step) {
-      state.calendarDate.setMonth(state.calendarDate.getMonth() + step);
-      renderCalendar();
-    }
-
-    function renderCalendar() {
-      const d = state.calendarDate;
-      const year = d.getFullYear();
-      const month = d.getMonth();
-
-      $("calendarTitle").textContent = `${months[month]} de ${year}`;
-
-      const firstDay = new Date(year, month, 1).getDay();
-      const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-      const grid = $("calendarGrid");
-      grid.innerHTML = "";
-
-      ["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"].forEach(day => {
-        const el = document.createElement("div");
-        el.className = "day-head";
-        el.textContent = day;
-        grid.appendChild(el);
-      });
-
-      for (let i = 0; i < firstDay; i++) {
-        const empty = document.createElement("div");
-        empty.className = "day empty";
-        grid.appendChild(empty);
-      }
-
-      for (let day = 1; day <= daysInMonth; day++) {
-        const iso = `${year}-${String(month+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
-        const events = state.orders.filter(o => o.date === iso);
-
-        const el = document.createElement("div");
-        el.className = "day";
-        el.onclick = () => {
-          $("orderDate").value = iso;
-          openOrderModal();
-        };
-
-        el.innerHTML = `
-          <div class="day-num">${day}</div>
-          ${events.slice(0, 3).map(e => `<div class="event-dot">${e.productName || "Pedido"}</div>`).join("")}
-          ${events.length > 3 ? `<div class="subtext">+${events.length - 3} mais</div>` : ""}
-        `;
-
-        grid.appendChild(el);
-      }
-    }
-
-    // =========================
-    // RELATÓRIOS
-    // =========================
-    function renderReports() {
-      const month = $("filterMonth").value;
-      const year = $("filterYear").value;
-
-      const periodOrders = state.orders.filter(o => isSameMonthYear(o.date, month, year));
-      const periodCash = state.cashflow.filter(c => isSameMonthYear(c.date, month, year));
-
-      const totalSales = periodOrders.reduce((s,o) => s + safeNum(o.finalTotal), 0);
-      const totalCost = periodOrders.reduce((s,o) => s + (safeNum(o.unitCost) * safeNum(o.qty)), 0);
-      const totalExpenses = periodCash.filter(c => c.type === "despesa").reduce((s,c) => s + safeNum(c.value), 0);
-      const totalExtraRevenue = periodCash.filter(c => c.type === "receita").reduce((s,c) => s + safeNum(c.value), 0);
-      const profit = totalSales - totalCost - totalExpenses + totalExtraRevenue;
-
-      const summary = [
-        `Pedidos no período: ${periodOrders.length}`,
-        `Vendas totais: ${formatMoney(totalSales)}`,
-        `Custo estimado: ${formatMoney(totalCost)}`,
-        `Receitas extras: ${formatMoney(totalExtraRevenue)}`,
-        `Despesas extras: ${formatMoney(totalExpenses)}`,
-        `Lucro estimado: ${formatMoney(profit)}`
-      ];
-
-      $("reportSummary").innerHTML = summary.map(item => `
-        <div class="item">
-          <div class="item-title">${item}</div>
-        </div>
-      `).join("");
-    }
-
-    // =========================
-    // SETTINGS
-    // =========================
-    function applySettingsToUI() {
-      $("companyLabel").textContent = state.settings.companyName || "Sua gráfica organizada";
-
-      $("companyName").value = state.settings.companyName || "";
-      $("companyDoc").value = state.settings.companyDoc || "";
-      $("companyPhone").value = state.settings.companyPhone || "";
-      $("companyEmail").value = state.settings.companyEmail || "";
-      $("companyBudgetValidity").value = state.settings.companyBudgetValidity || "";
-      $("companyPix").value = state.settings.companyPix || "";
-      $("companyObs").value = state.settings.companyObs || "";
-    }
-
-    async function saveSettings() {
-      const payload = {
-        companyName: $("companyName").value.trim(),
-        companyDoc: $("companyDoc").value.trim(),
-        companyPhone: $("companyPhone").value.trim(),
-        companyEmail: $("companyEmail").value.trim(),
-        companyBudgetValidity: $("companyBudgetValidity").value.trim(),
-        companyPix: $("companyPix").value.trim(),
-        companyObs: $("companyObs").value.trim(),
-        updatedAt: Date.now()
-      };
-
-      await window.fb.setDoc(window.fb.doc(window.db, "settings", "main"), payload);
-      closeModal("settingsModal");
-      await loadAllData();
-    }
-
-    // =========================
-    // INIT
-    // =========================
-    function renderAll() {
-      renderDashboard();
-      renderOrders();
-      renderClients();
-      renderProducts();
-      renderFinance();
-      renderCalendar();
-      renderReports();
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-      loadTheme();
-      fillMonthYearFilters();
-
-      $("orderDate").value = todayISO();
-      $("orderDueDate").value = todayISO();
-      $("orderExpenseDate").value = todayISO();
-      $("cashflowDate").value = todayISO();
-
-      if ("serviceWorker" in navigator) {
-        navigator.serviceWorker.register("./sw.js").catch(console.error);
-      }
-    });
-
-    window.addEventListener("firebase-ready", loadAllData);
-
-    // expose
-    window.toggleTheme = toggleTheme;
-    window.openModal = openModal;
-    window.closeModal = closeModal;
-    window.goToPage = goToPage;
-    window.openClientModal = openClientModal;
-    window.saveClient = saveClient;
-    window.deleteClient = deleteClient;
-    window.openProductModal = openProductModal;
-    window.saveProduct = saveProduct;
-    window.deleteProduct = deleteProduct;
-    window.openOrderModal = openOrderModal;
-    window.saveOrder = saveOrder;
-    window.deleteOrder = deleteOrder;
-    window.markOrderPaid = markOrderPaid;
-    window.calculateOrderTotal = calculateOrderTotal;
-    window.setOrderFilter = setOrderFilter;
-    window.openPDVModal = openPDVModal;
-    window.syncPDVProduct = syncPDVProduct;
-    window.calculatePDV = calculatePDV;
-    window.savePDV = savePDV;
-    window.changeCalendarMonth = changeCalendarMonth;
-    window.openCashflowModal = openCashflowModal;
-    window.saveCashflow = saveCashflow;
-    window.saveSettings = saveSettings;
-  </script>
+    y = docPDF.lastAutoTable.finalY + 5;
+    docPDF.setFontSize(9);
+    docPDF.text(`Subtotal: ${money(t.subtotal)}`,10,y); y+=5;
+    docPDF.text(`Despesas: ${money(t.despesas)}`,10,y); y+=5;
+    docPDF.text(`Frete: ${money(t.frete)}`,10,y); y+=5;
+    docPDF.text(`Desconto: ${money(t.desconto)}`,10,y); y+=5;
+    docPDF.setFontSize(11); docPDF.setTextColor(0,40,104); docPDF.text(`TOTAL: ${money(t.total)}`,10,y); y+=7;
+  } else {
+    docPDF.setFontSize(10);
+    docPDF.text(`Recebi de ${pedido.clienteNome||"________________"} a quantia de ${money(t.total)} referente ao pedido/serviço descrito abaixo:`,10,y,{maxWidth:125}); y+=14;
+    (pedido.itens||[]).forEach(i=>{ docPDF.text(`• ${i.nome||"-"} (${i.quantidade||1} ${i.unidade||"un"})`,10,y); y+=5; });
+    y+=4;
+    docPDF.text(`Forma de pagamento: ${pedido.formaPagamento||"-"}`,10,y); y+=6;
+  }
+
+  if(tipo==="orcamento"){
+    docPDF.setTextColor(20); docPDF.setFontSize(9);
+    docPDF.text(`Validade: ${e.validadeOrcamento||7} dias`,10,y); y+=5;
+  }
+
+  const obs = pedido.observacoes || e.observacaoPadrao || "";
+  if(obs){
+    docPDF.setFontSize(9); docPDF.setTextColor(20);
+    docPDF.text(`Observações: ${obs}`,10,y,{maxWidth:125}); y+=10;
+  }
+
+  if(e.chavePix){
+    docPDF.setTextColor(0,40,104); docPDF.setFontSize(10); docPDF.text("Pix para pagamento:",10,y); y+=5;
+    docPDF.setTextColor(20); docPDF.setFontSize(9); docPDF.text(`${e.nomePix||""} - ${e.chavePix}`,10,y,{maxWidth:125}); y+=8;
+  }
+
+  docPDF.setTextColor(80); docPDF.setFontSize(8);
+  docPDF.text(`${e.cidadeUf||""}, ${new Date().toLocaleDateString("pt-BR")}`,10,200);
+  docPDF.line(85,194,135,194); docPDF.text(e.nomeEmpresa||"Assinatura",95,198);
+
+  docPDF.save(`${titulo.toLowerCase().replaceAll(" ","_")}_${(pedido.clienteNome||"cliente").replace(/\s+/g,"_")}.pdf`);
+};
+
+if("serviceWorker" in navigator){
+  window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(console.error));
+}
+
+fillDateSelectors();
+loadAll();
+window.renderDashboard=renderDashboard;
+window.renderPedidos=renderPedidos;
+window.renderFinanceiro=renderFinanceiro;
+window.renderClientes=renderClientes;
+window.renderProdutos=renderProdutos;
+window.renderRelatorios=renderRelatorios;
+</script>
 </body>
 </html>
